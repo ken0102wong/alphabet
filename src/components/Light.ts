@@ -1,5 +1,5 @@
 import { PointLight, 
-    HemisphereLight, DirectionalLight, AmbientLight, Scene,
+    HemisphereLight, DirectionalLight, AmbientLight, Scene, SpotLight,
     HemisphereLightHelper, DirectionalLightHelper } from 'https://cdn.skypack.dev/three@0.137';
 
 class Light{
@@ -38,10 +38,25 @@ class AmbLight{
 
     constructor() {
 
-        this.light = new AmbientLight(0xffffff, 0.5)
+        this.light = new AmbientLight(0xf0f0f0, 8)
     }
     
     deploy(scene: Scene) {
+        scene.add(this.light);
+    }
+}
+
+class SptLight{
+    light: SpotLight;
+
+    constructor(){
+        this.light = new SpotLight( 0xf0f0f0, 1.5 );
+        this.light.position.set( 0, 1500, 200 );
+        this.light.angle = Math.PI * 0.2;
+      
+    }
+
+    deploy(scene: Scene){
         scene.add(this.light);
     }
 }
@@ -63,4 +78,4 @@ class EnvironmentLight{
     }
 }
 
-export default {Light, EnvironmentLight, AmbLight}
+export default {Light, EnvironmentLight, AmbLight, SptLight}
