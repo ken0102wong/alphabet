@@ -10,8 +10,10 @@ declare module 'https://cdn.skypack.dev/three@0.137' {
     Mesh, MeshStandardMaterial, MeshPhysicalMaterial, MeshLambertMaterial, ShaderMaterial, MeshBasicMaterial, TextureLoader, 
     Vector2, Layers, EventDispatcher, SpotLight, ShadowMaterial, GridHelper, Object3D, 
     CylinderGeometry, SphereGeometry, BoxGeometry, IcosahedronGeometry,PlaneGeometry, BufferGeometry,
-    HemisphereLight, DirectionalLight,  AmbientLight, PointLight,
+    HemisphereLight, DirectionalLight,  AmbientLight, PointLight, 
     HemisphereLightHelper, DirectionalLightHelper, Group} from 'three';
 }
 
 declare module 'https://cdn.skypack.dev/simplex-noise';
+
+declare module 'https://cdn.skypack.dev/@tweenjs/tween.js';
