@@ -226,6 +226,7 @@ class Magic_Cube{
     }
 
     changeFormation5() {
+        console.log("5");
         for (var i = 0; i < list.length; i++) {
             var rot = 25 * i;
             var vx = i * Math.sin(rot * Math.PI / 180) / 5;
@@ -249,6 +250,7 @@ class Magic_Cube{
     }
 
     changeFormation6() {
+        console.log("6");
         for (var i = 0; i < list.length; i++) {
             var rot = 25 * i;
             var vx = i * Math.sin(rot * Math.PI / 180);
@@ -272,6 +274,7 @@ class Magic_Cube{
     }
 
     changeFormation7() {
+        console.log("7");
         for (var i = 0; i < list.length; i++) {
             var rot = 25 * i;
             var vx = i * Math.sin(rot * Math.PI / 180);
@@ -312,17 +315,17 @@ class Magic_Cube{
                 this.changeFormation5();
                 break;
             case 6:
-                this.changeFormation5();
+                this.changeFormation6();
                 break;
             case 7:
-                this.changeFormation5();
+                this.changeFormation7();
                 break;
             default:
                 this.changeFormation1();
         }
         
         this.ID++;
-        if (this.ID > 2) {
+        if (this.ID > 7) {
             this.ID = 1;
         }
     }
@@ -369,7 +372,7 @@ function init(){
 
     magic_cube = new Magic_Cube();
     scene.add(magic_cube.deploy());
-    setInterval(changeID, 1000);
+    setInterval(changeID, 2000);
     
     render();
 }
