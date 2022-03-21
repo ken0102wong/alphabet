@@ -10,6 +10,7 @@ declare module 'https://cdn.skypack.dev/three@0.137' {
     Mesh, MeshStandardMaterial, MeshPhysicalMaterial, MeshLambertMaterial, ShaderMaterial, MeshBasicMaterial, TextureLoader, 
     Vector2, Layers, EventDispatcher, SpotLight, ShadowMaterial, GridHelper, Object3D, 
     CylinderGeometry, SphereGeometry, BoxGeometry, IcosahedronGeometry,PlaneGeometry, BufferGeometry,
+    ExtrudeGeometry, Shape,
     HemisphereLight, DirectionalLight,  AmbientLight, PointLight, 
     HemisphereLightHelper, DirectionalLightHelper, Group} from 'three';
 }

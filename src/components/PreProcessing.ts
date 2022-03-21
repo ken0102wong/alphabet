@@ -7,7 +7,7 @@ class PreProcessing {
 
     private camera : PerspectiveCamera;
     private renderer : WebGLRenderer;
-    private controls : EventDispatcher;
+    private controls : any;
     private effect: any;
 
     public getCamera(): PerspectiveCamera{
@@ -18,7 +18,7 @@ class PreProcessing {
         return this.renderer;
     }
 
-    public getOrbitControls(): EventDispatcher{
+    public getOrbitControls(): any{
         return this.controls;
     }
 
@@ -51,12 +51,13 @@ class PreProcessing {
         //document.body.appendChild(this.effect.domElement);
 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.target.set(0,0,0);
+        this.controls.dampingFactor = 0.05;
+        this.controls.enableDamping = true;
 
         new Light.AmbLight().deploy(scene);
         new Light.SptLight().deploy(scene);
         new Light.Light().deploy(scene, false);
-
-        
     }
 
     
