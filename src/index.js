@@ -1,5 +1,5 @@
 import { Color,Scene, GridHelper, HemisphereLight, Mesh, BoxGeometry, CylinderGeometry, Object3D, PerspectiveCamera, WebGLRenderer, Shape,
-    ReinhardToneMapping, PCFSoftShadowMap, MeshLambertMaterial, SphereGeometry } from 'https://cdn.skypack.dev/three@0.137';
+    ReinhardToneMapping, PCFSoftShadowMap, MeshPhongMaterial, SphereGeometry } from 'https://cdn.skypack.dev/three@0.137';
 import { OrbitControls } from 'https://cdn.skypack.dev/three-stdlib@2.8.5/controls/OrbitControls';
 import TWEEN from 'https://cdn.skypack.dev/@tweenjs/tween.js';
 
@@ -11,12 +11,14 @@ let magic_cube;
 let renderer;
 let list = [];
 
-class Magic_Cube{
+class Alphabet{
     ID = 1;
     DOT_SIZE = 20;
     X_START_POS = -8 * this.DOT_SIZE;
     Y_START_POS = -8 * this.DOT_SIZE;
     Z_START_POS = -4.5 * this.DOT_SIZE;
+
+    NO_OF_NODE = 8;
 
     group;
     dataSet;
@@ -25,20 +27,22 @@ class Magic_Cube{
         this.group = new Object3D();
         var meshArray = [];
 
-        var geometry = this.random_geometry();
+        var geometry = this.genGeometry();
         this.genData();
 
         for (var j = 0; j < this.dataSet.length; j++) {
             for (var i = 0; i < this.dataSet[j].length; i++) {
-                var x = (i % 16) * this.DOT_SIZE + this.X_START_POS;
-                var y = (16 - Math.floor(i / 16)) * this.DOT_SIZE + this.Y_START_POS;
+                var x = (i % this.NO_OF_NODE) * this.DOT_SIZE + this.X_START_POS;
+                var y = (this.NO_OF_NODE - Math.floor(i / this.NO_OF_NODE)) * this.DOT_SIZE + this.Y_START_POS;
                 var z = j * this.DOT_SIZE + this.Z_START_POS;
 
-                var material = new MeshLambertMaterial({
-                    color: new Color(this.getRgbColor(this.dataSet[j][i]))
+                var material = new MeshPhongMaterial({
+                    color: new Color(this.getRgbColor(this.dataSet[j][i])),
+                    specular: new Color("#483c3c"),
+                    shininess: 100
                 });
                 meshArray[i] = new Mesh(geometry, material);
-                meshArray[i].position.x = x - 0;
+                meshArray[i].position.x = x;
                 meshArray[i].position.y = y;
                 meshArray[i].position.z = z;
                 this.group.add(meshArray[i]);
@@ -56,7 +60,7 @@ class Magic_Cube{
         }
     }
 
-    random_geometry() {
+    genGeometry() {
         let random_sharp = Math.random() * 10 % 3 | 0;
         let random_size = Math.random() * 10 + 5 | 0;
 
@@ -83,7 +87,7 @@ class Magic_Cube{
                 const l = i % 2 == 1 ? 0.5 : 0.25;
                 const a = i / numPts * Math.PI;
 
-                pts2.push( new Vector2( Math.cos( a ) * l, Math.sin( a ) * l ) );
+                pts2.push( new Vector2( Math.cos( a ) * l, Math.sin( a ) * l ) ); 
             }
 
             const shape2 = new Shape( pts2 );
@@ -93,13 +97,15 @@ class Magic_Cube{
     }
 
     genData() {
-
-        var brick = [ "WH", "BG", "BR", "RD", "YL", "GN", "WT", "BL", "PR"];
+        var brick = []
+        brick = [ "WH", "BG", "BR", "RD", "YL", "GN", "WT", "BL", "PR"];
+        brick = [ "MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"];
+        brick = [ "GG", "FF", "CL", "BA", "PR", "AT", "TC", "DT", "PO"];
 
         this.dataSet = new Array();
-        for (var j = 0; j < 16; j++) {
+        for (var j = 0; j < this.NO_OF_NODE; j++) {
             this.dataSet[j] = new Array();
-            for (var i = 0; i < 256; i++) {
+            for (var i = 0; i < this.NO_OF_NODE * this.NO_OF_NODE; i++) {
                 if (this.dataSet[j] == null)
                     this.dataSet[j] = brick[Math.floor(Math.random() * brick.length)];
                 else
@@ -120,185 +126,122 @@ class Magic_Cube{
             "GN":"#00FF00", // green
             "WT":"#00FFFF", // water
             "BL":"#0000FF", // blue
-            "PR":"#800080"  // purple
+            "PR":"#800080",  // purple
+
+            // Light Multiple
+            "MP":"#986DE8", // Matt Purple
+            "LI":"#B2F477", // Lima
+            "PPB":"#CCD6FF", // Pale Phthalo Blue
+            "PA":"#FCFFAD", // Parchment
+            "PS":"#bd69ea", // Purple Snail
+            "PP":"#e3a6f4", // Petal Plush
+            "BT":"#ffc77f", // Beige Topaz
+            "DM":"#88f7f5", // Defense Matrix
+            "CO":"#a194f7", // Cobalite
+
+            // Dark Multiple
+            "GG":"#e8cb12", // Gouda Gold
+            "FF":"#ed099d", // Fanatic Fuchsia
+            "CL":"#001d59", // Clarinet
+            "BA":"#b111c6", // Barney
+            "PR":"#1a0b7f", // Prunelle
+            "AT":"#068960", // Absinthe Turquoise
+            "TC":"#0f7c01", // Toy Camouflage
+            "DT":"#025a5b", // Dark Turquoise
+            "PO":"#077c19", // Poblano
         };
         return colorHash[colorType];
     }
 
     changeFormation1() {
-        console.log("1");
         for (var i = 0; i < list.length; i++) {
             var rot = 360 / list.length * i;
             var vx = Math.random() * 600 - 300;
             var vy = Math.random() * 600 - 300;
             var vz = Math.random() * 600 - 300;
 
-            new TWEEN.Tween(list[i].position).to({
-                x: vx,
-                y: vy,
-                z: vz
-            }, 1000)
-                .easing(TWEEN.Easing.Exponential.InOut).start();
-
-            new TWEEN.Tween(list[i].rotation).to({
-                x: 0,
-                y: rot,
-                z: 0
-            }, 1000)
-                .easing(TWEEN.Easing.Cubic.InOut).start();
+            new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
+            new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
         }
     }
 
     //Cube
     changeFormation2() {
-        console.log("2");
         var k = 0;
         for (var j = 0; j < this.dataSet.length; j++) {
             for (var i = 0; i < this.dataSet[j].length; i++) {
-                var x = (i % 16) * this.DOT_SIZE + this.X_START_POS;
-                var y = (16 - Math.floor(i / 16)) * this.DOT_SIZE + this.Y_START_POS;
+                var x = (i % this.NO_OF_NODE) * this.DOT_SIZE + this.X_START_POS;
+                var y = (this.NO_OF_NODE - Math.floor(i / this.NO_OF_NODE)) * this.DOT_SIZE + this.Y_START_POS;
                 var z = j * this.DOT_SIZE + this.Z_START_POS;
 
-                new TWEEN.Tween(list[k].position).to({
-                    x: x,
-                    y: y,
-                    z: z
-                }, 1000)
-                    .easing(TWEEN.Easing.Exponential.InOut).start();
-        
-                new TWEEN.Tween(list[k].rotation).to({
-                    x: 0,
-                    y: 0,
-                    z: 0
-                }, 1000)
-                    .easing(TWEEN.Easing.Cubic.InOut).start();
+                new TWEEN.Tween(list[k].position).to({ x: x, y: y, z: z }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
+                new TWEEN.Tween(list[k].rotation).to({ x: 0, y: 0, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
                 k++;
             }
         }
     }
 
     changeFormation3() {
-        console.log("3");
         for (var i = 0; i < list.length; i++) {
             var rot = 360 / list.length * i;
             var vx = Math.random() * 800 - 300;
             var vy = 0;
             var vz = Math.random() * 600; //- 300;
 
-            new TWEEN.Tween(list[i].position).to({
-                x: vx,
-                y: vy,
-                z: vz
-            }, 1000)
-                .easing(TWEEN.Easing.Exponential.InOut).start();
-
-            new TWEEN.Tween(list[i].rotation).to({
-                x: 0,
-                y: rot,
-                z: 0
-            }, 1000)
-                .easing(TWEEN.Easing.Cubic.InOut).start();
+            new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
+            new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
         }
     }
 
     changeFormation4() {
-        console.log("4");
         for (var i = 0; i < list.length; i++) {
             var rot = 25 * i;
             var vx = 150 * Math.sin(rot * Math.PI / 180);
             var vy = 1 * i - 400;
             var vz = 150 * Math.cos(rot * Math.PI / 180);
 
-            new TWEEN.Tween(list[i].position).to({
-                x: vx,
-                y: vy,
-                z: vz
-            }, 1000)
-                .easing(TWEEN.Easing.Exponential.InOut).start();
-
-            new TWEEN.Tween(list[i].rotation).to({
-                x: 0,
-                y: rot,
-                z: 0
-            }, 1000)
-                .easing(TWEEN.Easing.Cubic.InOut).start();
+            new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
+            new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
         }
     }
 
     changeFormation5() {
-        console.log("5");
         for (var i = 0; i < list.length; i++) {
             var rot = 25 * i;
             var vx = i * Math.sin(rot * Math.PI / 180) / 5;
             var vy = i;
             var vz = i * Math.cos(rot * Math.PI / 180) / 5;
 
-            new TWEEN.Tween(list[i].position).to({
-                x: vx,
-                y: vy,
-                z: vz
-            }, 1000)
-                .easing(TWEEN.Easing.Exponential.InOut).start();
-
-            new TWEEN.Tween(list[i].rotation).to({
-                x: 0,
-                y: rot,
-                z: 0
-            }, 1000)
-                .easing(TWEEN.Easing.Cubic.InOut).start();
+            new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
+            new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
         }
     }
 
     changeFormation6() {
-        console.log("6");
         for (var i = 0; i < list.length; i++) {
             var rot = 25 * i;
             var vx = i * Math.sin(rot * Math.PI / 180);
             var vy = i;
             var vz = i * Math.cos(rot * Math.PI / 180);
 
-            new TWEEN.Tween(list[i].position).to({
-                x: vx,
-                y: vy,
-                z: vz
-            }, 1000)
-                .easing(TWEEN.Easing.Exponential.InOut).start();
-
-            new TWEEN.Tween(list[i].rotation).to({
-                x: 0,
-                y: rot,
-                z: 0
-            }, 1000)
-                .easing(TWEEN.Easing.Cubic.InOut).start();
+            new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
+            new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
         }
     }
 
     changeFormation7() {
-        console.log("7");
         for (var i = 0; i < list.length; i++) {
             var rot = 25 * i;
             var vx = 150 * Math.sin(rot * Math.PI / 180);
             var vy = (i - 1) * 10;
             var vz = 150 * Math.cos(rot * Math.PI / 180);
 
-            new TWEEN.Tween(list[i].position).to({
-                x: vx,
-                y: vy,
-                z: vz
-            }, 1000)
-                .easing(TWEEN.Easing.Exponential.InOut).start();
-
-            new TWEEN.Tween(list[i].rotation).to({
-                x: 0,
-                y: rot,
-                z: 0
-            }, 1000)
-                .easing(TWEEN.Easing.Cubic.InOut).start();
+            new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
+            new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
         }
     }
     
     changeFormation8() {
-        console.log("8");
         for (var i = 0; i < list.length; i++) {
             var rot = 25 * i;
             if (i < list.length / 2) {
@@ -311,51 +254,40 @@ class Magic_Cube{
                 var vz = 150 * Math.cos(rot * Math.PI / 180);
             }
 
-            new TWEEN.Tween(list[i].position).to({
-                x: vx,
-                y: vy,
-                z: vz
-            }, 1000)
-                .easing(TWEEN.Easing.Exponential.InOut).start();
-
-            new TWEEN.Tween(list[i].rotation).to({
-                x: 0,
-                y: rot,
-                z: 0
-            }, 1000)
-                .easing(TWEEN.Easing.Cubic.InOut).start();
+            new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
+            new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
         }
     }
 
     update() {
         switch (this.ID) {
             case 1:
+                this.changeFormation1();
+                break;
+            case 2:
+                this.changeFormation2();
+                break;
+            case 3:
+                this.changeFormation3();
+                break;
+            case 4:
+                this.changeFormation4();
+                break;
+            case 5:
+                this.changeFormation5();
+                break;
+            case 6:
+                this.changeFormation6();
+                break;
+            case 7:
                 this.changeFormation7();
                 break;
-        //     case 2:
-        //         this.changeFormation2();
-        //         break;
-        //     case 3:
-        //         this.changeFormation3();
-        //         break;
-        //     case 4:
-        //         this.changeFormation4();
-        //         break;
-        //     case 5:
-        //         this.changeFormation5();
-        //         break;
-        //     case 6:
-        //         this.changeFormation6();
-        //         break;
-        //     case 7:
-        //         this.changeFormation7();
-        //         break;
             default:
                 this.changeFormation8();
         }
         
         this.ID++;
-        if (this.ID > 2) {
+        if (this.ID > 8) {
             this.ID = 1;
         }
     }
@@ -397,18 +329,18 @@ function init(){
     const light = new HemisphereLight( 0xffffff, 0xffffff, 8 );
     light.color.setHSL( 0.6, 1, 0.6 );
     light.groundColor.setHSL( 0.095, 1, 0.75 );
-    light.position.set( 0, 40, 0 );
+    light.position.set( 40, 40, 40 );
     scene.add(light);
 
-    magic_cube = new Magic_Cube();
-    scene.add(magic_cube.deploy());
+    alphabet = new Alphabet();
+    scene.add(alphabet.deploy());
     setInterval(changeID, 2000);
     
     render();
 }
 
 function changeID() {
-    magic_cube.update();
+    alphabet.update();
 }
 
 function render() {
