@@ -8,17 +8,73 @@ let scene;
 let camera;
 let alphabet;
 
+class Random {
+    constructor() {
+        this.useA = false;
+        let sfc32 = function (uint128Hex) {
+            let a = parseInt(uint128Hex.substr(0, 8), 16);
+            let b = parseInt(uint128Hex.substr(8, 8), 16);
+            let c = parseInt(uint128Hex.substr(16, 8), 16);
+            let d = parseInt(uint128Hex.substr(24, 8), 16);
+            return function () {
+            a |= 0; b |= 0; c |= 0; d |= 0;
+            let t = (((a + b) | 0) + d) | 0;
+            d = (d + 1) | 0;
+            a = b ^ (b >>> 9);
+            b = (c + (c << 3)) | 0;
+            c = (c << 21) | (c >>> 11);
+            c = (c + t) | 0;
+            return (t >>> 0) / 4294967296;
+            };
+        };
+        // seed prngA with first half of tokenData.hash
+        this.prngA = new sfc32(tokenData.hash.substr(2, 32));
+        // seed prngB with second half of tokenData.hash
+        this.prngB = new sfc32(tokenData.hash.substr(34, 32));
+        for (let i = 0; i < 1e6; i += 2) {
+            this.prngA();
+            this.prngB();
+        }
+    }
+    // random number between 0 (inclusive) and 1 (exclusive)
+    random_dec() {
+        this.useA = !this.useA;
+        return this.useA ? this.prngA() : this.prngB();
+    }
+    // random number between a (inclusive) and b (exclusive)
+    random_num(a, b) {
+        return a + (b - a) * this.random_dec();
+    }
+    // random integer between a (inclusive) and b (inclusive)
+    // requires a < b for proper probability distribution
+    random_int(a, b) {
+        return Math.floor(this.random_num(a, b + 1));
+    }
+    // random boolean with p as percent liklihood of true
+    random_bool(p) {
+        return this.random_dec() < p;
+    }
+    // random value in an array of items
+    random_choice(list) {
+        return list[this.random_int(0, list.length - 1)];
+    }
+  }
+
 let renderer;
 let list = [];
+let tokenData = genTokenData(123);
+let r = new Random();
+
+
 
 class Alphabet{
     ID = 1;
-    DOT_SIZE = 20;
+    DOT_SIZE = 12;
     X_START_POS = -8 * this.DOT_SIZE;
     Y_START_POS = -8 * this.DOT_SIZE;
     Z_START_POS = -4.5 * this.DOT_SIZE;
 
-    NO_OF_NODE = 8;
+    NO_OF_NODE = 5;
 
     group;
     dataSet;
@@ -35,18 +91,19 @@ class Alphabet{
                 var x = (i % this.NO_OF_NODE) * this.DOT_SIZE + this.X_START_POS;
                 var y = (this.NO_OF_NODE - Math.floor(i / this.NO_OF_NODE)) * this.DOT_SIZE + this.Y_START_POS;
                 var z = j * this.DOT_SIZE + this.Z_START_POS;
-
-                var material = new MeshPhongMaterial({
-                    color: new Color(this.getRgbColor(this.dataSet[j][i])),
-                    specular: new Color("#483c3c"),
-                    shininess: 100
-                });
-                meshArray[i] = new Mesh(geometry, material);
-                meshArray[i].position.x = x;
-                meshArray[i].position.y = y;
-                meshArray[i].position.z = z;
-                this.group.add(meshArray[i]);
-                list.push(meshArray[i]);
+                if (this.dataSet[j][i] != "0"){               
+                    var material = new MeshPhongMaterial({
+                        color: new Color(this.getRgbColor(this.dataSet[j][i])),
+                        specular: new Color("#483c3c"),
+                        shininess: 100
+                    });
+                    meshArray[i] = new Mesh(geometry, material);
+                    meshArray[i].position.x = x;
+                    meshArray[i].position.y = y;
+                    meshArray[i].position.z = z;
+                    this.group.add(meshArray[i]);
+                    list.push(meshArray[i]);
+                }
             }
         }
 
@@ -58,7 +115,8 @@ class Alphabet{
     genGeometry() {
         let random_sharp = Math.random() * 10 % 3 | 0;
         let random_size = Math.random() * 10 + 5 | 0;
-
+        random_sharp = 1;
+        random_size = 10;
         if (random_sharp == 0)
             return new SphereGeometry(random_size);
         else if (random_sharp == 1) 
@@ -91,25 +149,73 @@ class Alphabet{
         }
     }
 
+    hex2bin(hex){
+        return (parseInt(hex, 16).toString(2)).padStart(25, '0');
+    }
+
+    getAlphabet(){
+
+        var encodedLetter = {
+            "A": "C97A52",
+            "B": "C5314C",
+            "C": "642106",
+            "D": "C5294C",
+            "E": "E4310E",
+            "F": "E43108",
+            "G": "C85A4C",
+            "H": "A5394A",
+            "I": "421084",
+            "J": "210944",
+            "K": "A5314A",
+            "L": "84210E",
+            "M": "11DD631",
+            "N": "96AD29",
+            "O": "64A526",
+            "P": "E4B908",
+            "Q": "64A467",
+            "R": "E4B929",
+            "S": "C8305C",
+            "T": "E21084",
+            "U": "94A526",
+            "V": "94A4C2",
+            "W": "118C6AA",
+            "X": "A5114A",
+            "Y": "A51084",
+            "Z": "F1110F",
+        }
+
+        var data =[Array.from(this.hex2bin(encodedLetter[r.random_choice(["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"])]))];
+
+        var i = 1;
+        for (i = 1; i < this.NO_OF_NODE; i++){
+            data.push(data[0]);
+        }
+
+        return data;
+    }
+
     genData() {
         var brick = []
         brick = [ "WH", "BG", "BR", "RD", "YL", "GN", "WT", "BL", "PR"];
         brick = [ "MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"];
         brick = [ "GG", "FF", "CL", "BA", "PR", "AT", "TC", "DT", "PO"];
 
-        this.dataSet = new Array();
-        for (var j = 0; j < this.NO_OF_NODE; j++) {
-            this.dataSet[j] = new Array();
-            for (var i = 0; i < this.NO_OF_NODE * this.NO_OF_NODE; i++) {
-                if (this.dataSet[j] == null)
-                    this.dataSet[j] = brick[Math.floor(Math.random() * brick.length)];
-                else
-                    this.dataSet[j].push(brick[Math.floor(Math.random() * brick.length)]);
+        this.dataSet =  this.getAlphabet();//new Array();
+        var brickColor = brick[Math.floor(r.random_dec() * brick.length)];
+        for (var j = 0; j < this.NO_OF_NODE; j++)
+        {
+            for (var i = 0; i < this.NO_OF_NODE * this.NO_OF_NODE; i++){
+                if (this.dataSet[j][i] != "0"){
+                    this.dataSet[j][i] = brickColor ;
+                }
             }
         }
 
         return this.dataSet;
     }
+
+    
+
 
     getRgbColor(colorType) {
         var colorHash = {
@@ -154,7 +260,7 @@ class Alphabet{
             var vx = Math.random() * 600 - 300;
             var vy = Math.random() * 600 - 300;
             var vz = Math.random() * 600 - 300;
-
+            
             new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
             new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
         }
@@ -168,10 +274,11 @@ class Alphabet{
                 var x = (i % this.NO_OF_NODE) * this.DOT_SIZE + this.X_START_POS;
                 var y = (this.NO_OF_NODE - Math.floor(i / this.NO_OF_NODE)) * this.DOT_SIZE + this.Y_START_POS;
                 var z = j * this.DOT_SIZE + this.Z_START_POS;
-
+                if (this.dataSet[j][i] != "0"){
                 new TWEEN.Tween(list[k].position).to({ x: x, y: y, z: z }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
                 new TWEEN.Tween(list[k].rotation).to({ x: 0, y: 0, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
                 k++;
+                }
             }
         }
     }
@@ -293,12 +400,20 @@ class Alphabet{
     }
 }
 
+
+console.log(tokenData.hash);
+console.log(r.random_choice(['cube','sphere','star','hex']));
+console.log(r.random_choice(['metal', 'normal']));
+console.log(r.random_choice(['Pattern1', 'Pattern2', 'Gold', 'Silver']));
+console.log(r.random_choice(['Transformation1', 'Transformation2', 'Transformation3', 'Tranformation4', 'Tranformation5']));
+console.log(r.random_choice(['Cube', 'Diamond', 'Shpere']));
+console.log(r.random_choice(['Tiny','Normal','Extra']));
+
 init();
 
 function init(){
     scene = new Scene();
-    scene.background = new Color( 0xf0f0f0  );
-
+    
     // const helper = new GridHelper( 2000, 100 );
     // helper.position.y = - 199;
     // scene.add( helper );
@@ -349,6 +464,7 @@ function init(){
     scene.add(light);
 
     alphabet = new Alphabet();
+    scene.background = new Color(alphabet.getRgbColor(r.random_choice([ "MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"])) );
     scene.add(alphabet.deploy());
     setInterval(changeID, 2000);
     
@@ -361,7 +477,7 @@ function changeID() {
 
 function render() {
     renderer.setAnimationLoop(() => {
-        TWEEN.update();
+        //TWEEN.update();
         renderer.render(scene, camera);
     });
 }
@@ -372,57 +488,7 @@ window.addEventListener('resize', function() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 })
 
-class Random {
-    constructor() {
-        this.useA = false;
-        let sfc32 = function (uint128Hex) {
-            let a = parseInt(uint128Hex.substr(0, 8), 16);
-            let b = parseInt(uint128Hex.substr(8, 8), 16);
-            let c = parseInt(uint128Hex.substr(16, 8), 16);
-            let d = parseInt(uint128Hex.substr(24, 8), 16);
-            return function () {
-            a |= 0; b |= 0; c |= 0; d |= 0;
-            let t = (((a + b) | 0) + d) | 0;
-            d = (d + 1) | 0;
-            a = b ^ (b >>> 9);
-            b = (c + (c << 3)) | 0;
-            c = (c << 21) | (c >>> 11);
-            c = (c + t) | 0;
-            return (t >>> 0) / 4294967296;
-            };
-        };
-        // seed prngA with first half of tokenData.hash
-        this.prngA = new sfc32(tokenData.hash.substr(2, 32));
-        // seed prngB with second half of tokenData.hash
-        this.prngB = new sfc32(tokenData.hash.substr(34, 32));
-        for (let i = 0; i < 1e6; i += 2) {
-            this.prngA();
-            this.prngB();
-        }
-    }
-    // random number between 0 (inclusive) and 1 (exclusive)
-    random_dec() {
-        this.useA = !this.useA;
-        return this.useA ? this.prngA() : this.prngB();
-    }
-    // random number between a (inclusive) and b (exclusive)
-    random_num(a, b) {
-        return a + (b - a) * this.random_dec();
-    }
-    // random integer between a (inclusive) and b (inclusive)
-    // requires a < b for proper probability distribution
-    random_int(a, b) {
-        return Math.floor(this.random_num(a, b + 1));
-    }
-    // random boolean with p as percent liklihood of true
-    random_bool(p) {
-        return this.random_dec() < p;
-    }
-    // random value in an array of items
-    random_choice(list) {
-        return list[this.random_int(0, list.length - 1)];
-    }
-  }
+
 
 function genTokenData(projectNum) {
     let data = {};
@@ -435,13 +501,5 @@ function genTokenData(projectNum) {
     return data;
 }
 
-let tokenData = genTokenData(123);
-let r = new Random();
-console.log(tokenData.hash);
-console.log(r.random_choice(['cube','sphere','star','hex']));
-console.log(r.random_choice(['metal', 'normal']));
-console.log(r.random_choice(['Pattern1', 'Pattern2', 'Gold', 'Silver']));
-console.log(r.random_choice(['Transformation1', 'Transformation2', 'Transformation3', 'Tranformation4', 'Tranformation5']));
-console.log(r.random_choice(['Cube', 'Diamond', 'Shpere']));
-console.log(r.random_choice(['Tiny','Normal','Extra']));
+
 
