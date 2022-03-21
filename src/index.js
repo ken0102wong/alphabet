@@ -277,9 +277,39 @@ class Magic_Cube{
         console.log("7");
         for (var i = 0; i < list.length; i++) {
             var rot = 25 * i;
-            var vx = i * Math.sin(rot * Math.PI / 180);
-            var vy = i * i;
-            var vz = i * Math.cos(rot * Math.PI / 180) / 8;
+            var vx = 150 * Math.sin(rot * Math.PI / 180);
+            var vy = (i - 1) * 10;
+            var vz = 150 * Math.cos(rot * Math.PI / 180);
+
+            new TWEEN.Tween(list[i].position).to({
+                x: vx,
+                y: vy,
+                z: vz
+            }, 1000)
+                .easing(TWEEN.Easing.Exponential.InOut).start();
+
+            new TWEEN.Tween(list[i].rotation).to({
+                x: 0,
+                y: rot,
+                z: 0
+            }, 1000)
+                .easing(TWEEN.Easing.Cubic.InOut).start();
+        }
+    }
+    
+    changeFormation8() {
+        console.log("8");
+        for (var i = 0; i < list.length; i++) {
+            var rot = 25 * i;
+            if (i < list.length / 2) {
+                var vx = 150 * Math.cos(rot * Math.PI / 360);
+                var vy = i * 10;
+                var vz = 150 * Math.sin(rot * Math.PI / 360);
+            } else {
+                var vx = 150 * Math.sin(rot * Math.PI / 180) - 10;
+                var vy = (i - list.length / 2) * 10;
+                var vz = 150 * Math.cos(rot * Math.PI / 180);
+            }
 
             new TWEEN.Tween(list[i].position).to({
                 x: vx,
@@ -300,32 +330,32 @@ class Magic_Cube{
     update() {
         switch (this.ID) {
             case 1:
-                this.changeFormation1();
-                break;
-            case 2:
-                this.changeFormation2();
-                break;
-            case 3:
-                this.changeFormation3();
-                break;
-            case 4:
-                this.changeFormation4();
-                break;
-            case 5:
-                this.changeFormation5();
-                break;
-            case 6:
-                this.changeFormation6();
-                break;
-            case 7:
                 this.changeFormation7();
                 break;
+        //     case 2:
+        //         this.changeFormation2();
+        //         break;
+        //     case 3:
+        //         this.changeFormation3();
+        //         break;
+        //     case 4:
+        //         this.changeFormation4();
+        //         break;
+        //     case 5:
+        //         this.changeFormation5();
+        //         break;
+        //     case 6:
+        //         this.changeFormation6();
+        //         break;
+        //     case 7:
+        //         this.changeFormation7();
+        //         break;
             default:
-                this.changeFormation1();
+                this.changeFormation8();
         }
         
         this.ID++;
-        if (this.ID > 7) {
+        if (this.ID > 2) {
             this.ID = 1;
         }
     }
@@ -342,9 +372,9 @@ function init(){
     scene = new Scene();
     scene.background = new Color( 0xf0f0f0  );
 
-    const helper = new GridHelper( 2000, 100 );
-    helper.position.y = - 199;
-    scene.add( helper );
+    // const helper = new GridHelper( 2000, 100 );
+    // helper.position.y = - 199;
+    // scene.add( helper );
 
     camera = new PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
     camera.position.set( 0, 250, 1000 );
