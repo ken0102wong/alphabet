@@ -6,7 +6,7 @@ import TWEEN from 'https://cdn.skypack.dev/@tweenjs/tween.js';
 // global variable
 let scene;
 let camera;
-let magic_cube;
+let alphabet;
 
 let renderer;
 let list = [];
