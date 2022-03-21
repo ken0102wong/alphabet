@@ -1,4 +1,4 @@
-import { Color,Scene, GridHelper, HemisphereLight, Mesh, BoxGeometry, CylinderGeometry, Object3D, PerspectiveCamera, WebGLRenderer, Shape,
+import { Color,Scene, GridHelper, HemisphereLight, DirectionalLight, Mesh, BoxGeometry, CylinderGeometry, Object3D, PerspectiveCamera, WebGLRenderer, Shape,
     ReinhardToneMapping, PCFSoftShadowMap, MeshPhongMaterial, SphereGeometry } from 'https://cdn.skypack.dev/three@0.137';
 import { OrbitControls } from 'https://cdn.skypack.dev/three-stdlib@2.8.5/controls/OrbitControls';
 import TWEEN from 'https://cdn.skypack.dev/@tweenjs/tween.js';
@@ -51,12 +51,7 @@ class Alphabet{
         }
 
         for (var i = 0; i < list.length; i++) {
-            new TWEEN.Tween(list[i].scale).to({
-                x: 1,
-                y: 1,
-                z: 1
-            }, 1000)
-                .easing(TWEEN.Easing.Back.Out).start();
+            new TWEEN.Tween(list[i].scale).to({ x: 1, y: 1, z: 1 }, 1000).easing(TWEEN.Easing.Back.Out).start();
         }
     }
 
@@ -326,10 +321,31 @@ function init(){
     controls.dampingFactor = 0.05;
     controls.enableDamping = true;
 
-    const light = new HemisphereLight( 0xffffff, 0xffffff, 8 );
-    light.color.setHSL( 0.6, 1, 0.6 );
-    light.groundColor.setHSL( 0.095, 1, 0.75 );
-    light.position.set( 40, 40, 40 );
+    // const light = new HemisphereLight( 0xffffff, 0xffffff, 8 );
+    // light.color.setHSL( 0.6, 1, 0.6 );
+    // light.groundColor.setHSL( 0.095, 1, 0.75 );
+    // light.position.set( 40, 40, 40 );
+    // scene.add(light);
+
+    const light = new DirectionalLight( 0xffffff, 20 );
+    light.color.setHSL( 0.1, 1, 0.95 );
+    light.position.set( - 1, 1.75, 1 );
+    light.position.multiplyScalar( 30 );
+
+    light.castShadow = true;
+    //light.receiveShadow = true;
+    light.shadow.mapSize.width = 2048;
+    light.shadow.mapSize.height = 2048;
+
+    const d = 50;
+
+    light.shadow.camera.left = - d;
+    light.shadow.camera.right = d;
+    light.shadow.camera.top = d;
+    light.shadow.camera.bottom = - d;
+
+    light.shadow.camera.far = 3500;
+    light.shadow.bias = - 0.0001;
     scene.add(light);
 
     alphabet = new Alphabet();
@@ -355,4 +371,77 @@ window.addEventListener('resize', function() {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 })
+
+class Random {
+    constructor() {
+        this.useA = false;
+        let sfc32 = function (uint128Hex) {
+            let a = parseInt(uint128Hex.substr(0, 8), 16);
+            let b = parseInt(uint128Hex.substr(8, 8), 16);
+            let c = parseInt(uint128Hex.substr(16, 8), 16);
+            let d = parseInt(uint128Hex.substr(24, 8), 16);
+            return function () {
+            a |= 0; b |= 0; c |= 0; d |= 0;
+            let t = (((a + b) | 0) + d) | 0;
+            d = (d + 1) | 0;
+            a = b ^ (b >>> 9);
+            b = (c + (c << 3)) | 0;
+            c = (c << 21) | (c >>> 11);
+            c = (c + t) | 0;
+            return (t >>> 0) / 4294967296;
+            };
+        };
+        // seed prngA with first half of tokenData.hash
+        this.prngA = new sfc32(tokenData.hash.substr(2, 32));
+        // seed prngB with second half of tokenData.hash
+        this.prngB = new sfc32(tokenData.hash.substr(34, 32));
+        for (let i = 0; i < 1e6; i += 2) {
+            this.prngA();
+            this.prngB();
+        }
+    }
+    // random number between 0 (inclusive) and 1 (exclusive)
+    random_dec() {
+        this.useA = !this.useA;
+        return this.useA ? this.prngA() : this.prngB();
+    }
+    // random number between a (inclusive) and b (exclusive)
+    random_num(a, b) {
+        return a + (b - a) * this.random_dec();
+    }
+    // random integer between a (inclusive) and b (inclusive)
+    // requires a < b for proper probability distribution
+    random_int(a, b) {
+        return Math.floor(this.random_num(a, b + 1));
+    }
+    // random boolean with p as percent liklihood of true
+    random_bool(p) {
+        return this.random_dec() < p;
+    }
+    // random value in an array of items
+    random_choice(list) {
+        return list[this.random_int(0, list.length - 1)];
+    }
+  }
+
+function genTokenData(projectNum) {
+    let data = {};
+    let hash = "0x";
+    for (var i = 0; i < 64; i++) {
+      hash += Math.floor(Math.random() * 16).toString(16);
+    }
+    data.hash = hash;
+    data.tokenId = (projectNum * 1000000 + Math.floor(Math.random() * 1000)).toString();
+    return data;
+}
+
+let tokenData = genTokenData(123);
+let r = new Random();
+console.log(tokenData.hash);
+console.log(r.random_choice(['cube','sphere','star','hex']));
+console.log(r.random_choice(['metal', 'normal']));
+console.log(r.random_choice(['Pattern1', 'Pattern2', 'Gold', 'Silver']));
+console.log(r.random_choice(['Transformation1', 'Transformation2', 'Transformation3', 'Tranformation4', 'Tranformation5']));
+console.log(r.random_choice(['Cube', 'Diamond', 'Shpere']));
+console.log(r.random_choice(['Tiny','Normal','Extra']));
 
