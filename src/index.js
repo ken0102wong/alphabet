@@ -200,7 +200,7 @@ class Alphabet{
         }
 
         //var data =[Array.from(this.hex2bin(encodedLetter[r.random_choice(["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"])]))];
-        var data =[Array.from(this.hex2bin(encodedLetter["B"]))];
+        var data =[Array.from(this.hex2bin(encodedLetter["G"]))];
         var i = 0;
         for (i = 0; i < this.NO_OF_NODE; i++){
             data.push(data[0]);
@@ -287,9 +287,9 @@ class Alphabet{
     changeFormation1() {
         for (var i = 0; i < list.length; i++) {
             var rot = 360 / list.length * i;
-            var vx = Math.random() * 300 - 200;
-            var vy = Math.random() * 300 - 200;
-            var vz = Math.random() * 300 - 200;
+            var vx = Math.random() * 100 -70;
+            var vy = Math.random() * 100 - 50;
+            var vz = Math.random() * 100 - 20;
             
             new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.Out).start();
             new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
@@ -411,9 +411,9 @@ class Alphabet{
             case 2:
                 this.changeFormation2();
                 break;
-            case 3:
-                this.changeFormation3();
-                break;
+            // case 3:
+            //     this.changeFormation3();
+            //     break;
             // case 4:
             //     this.changeFormation4();
             //     break;
@@ -426,12 +426,12 @@ class Alphabet{
             // case 7:
             //     this.changeFormation7();
             //     break;
-            default:
-                this.changeFormation7();
+            // default:
+            //     this.changeFormation7();
         }
 
         this.ID++;
-        if (this.ID > 4) {
+        if (this.ID > 3) {
             this.ID = 1;
         }
     }
