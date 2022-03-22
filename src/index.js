@@ -1,9 +1,8 @@
 import { Color,Scene, GridHelper, HemisphereLight, DirectionalLight, Mesh, BoxGeometry, CylinderGeometry, Object3D, PerspectiveCamera, WebGLRenderer, Shape,
-    ReinhardToneMapping, PCFSoftShadowMap, MeshPhongMaterial, SphereGeometry,sRGBEncoding,
+    ReinhardToneMapping, PCFSoftShadowMap, MeshPhongMaterial, SphereGeometry,sRGBEncoding,CameraHelper,
     Vector2, MeshPhysicalMaterial, ExtrudeGeometry, MeshStandardMaterial,ACESFilmicToneMapping,
     DirectionalLightHelper, PointLight, MeshBasicMaterial, AmbientLight, OrthographicCamera, Math as threeMath,
  } from 'https://cdn.skypack.dev/three@0.137';
-import { OrbitControls } from 'https://cdn.skypack.dev/three-stdlib@2.8.5/controls/OrbitControls';
 import TWEEN from 'https://cdn.skypack.dev/@tweenjs/tween.js';
 
 // global variable
@@ -81,21 +80,22 @@ class Alphabet{
 
     group;
     dataSet;
-    
+
     constructor(){
         this.group = new Object3D();
         var meshArray = [];
-
+        this.dataSet = [];
         var geometry = this.genGeometry();
         this.genData();
-        console.log(this.dataSet);
         for (var j = 0; j < this.dataSet.length; j++) {
+
             for (var i = 0; i < this.dataSet[j].length; i++) {
+
                 var x = (i % this.NO_OF_NODE) * this.DOT_SIZE/2 + this.X_START_POS;
                 var y = (this.NO_OF_NODE - Math.floor(i / this.NO_OF_NODE)) * this.DOT_SIZE/2 + this.Y_START_POS;
                 var z = j * this.DOT_SIZE/2 + this.Z_START_POS;
-                
-                if (this.dataSet[j][i] != "0"){               
+
+                if (this.dataSet[j][i] != "0"){
                     var material = new MeshPhongMaterial({
                         transparent: 1,
                         opacity: 0.6,
@@ -104,18 +104,19 @@ class Alphabet{
                         specular: new Color("#483c3c"),
                         shininess: 100
                     });
-                    
+
                     meshArray[i] = new Mesh(geometry, material);
                     meshArray[i].position.x = x;
                     meshArray[i].position.y = y;
-                    meshArray[i].position.z = z;
+                    meshArray[i].position.z = 0;
                     this.group.add(meshArray[i]);
                     list.push(meshArray[i]);
                 }
+
             }
         }
-        
-        
+
+
         for (var i = 0; i < list.length; i++) {
             new TWEEN.Tween(list[i].scale).to({ x: 1, y: 1, z: 1 }, 1000).easing(TWEEN.Easing.Back.Out).start();
         }
@@ -125,10 +126,10 @@ class Alphabet{
         let random_sharp = Math.random() * 10 % 3 | 0;
         let random_size = Math.random() * 10 + 5 | 0;
         random_sharp = 1;
-        random_size = 10;
+        random_size = 5;
         if (random_sharp == 0)
             return new SphereGeometry(random_size/2);
-        else if (random_sharp == 1) 
+        else if (random_sharp == 1)
             return new BoxGeometry(random_size,random_size,random_size);
         else if (random_sharp == 2)
             return new CylinderGeometry(5,5,5,5,6, false);
@@ -153,7 +154,7 @@ class Alphabet{
                 const l = i % 2 == 1 ? this.DOT_SIZE : this.DOT_SIZE/2;
                 const a = i / numPts * Math.PI;
 
-                pts2.push( new Vector2( Math.cos( a ) * l, Math.sin( a ) * l ) ); 
+                pts2.push( new Vector2( Math.cos( a ) * l, Math.sin( a ) * l ) );
             }
 
             const shape2 = new Shape( pts2 );
@@ -163,7 +164,6 @@ class Alphabet{
     }
 
     hex2bin(hex){
-        console.log(parseInt(hex, 16).toString(2));
         return (parseInt(hex, 16).toString(2)).padStart(49, '0');
     }
 
@@ -171,17 +171,17 @@ class Alphabet{
 
         var encodedLetter = {
             "A": "FBFE3C7FF1E3",
-            "B": "1FB1E3FD8F1FE",
-            "C": "642106",
-            "D": "C5294C",
-            "E": "E4310E",
-            "F": "E43108",
-            "G": "C85A4C",
-            "H": "A5394A",
-            "I": "421084",
-            "J": "210944",
-            "K": "A5314A",
-            "L": "84210E",
+            "B": "51E227889E14",
+            "C": "FB0E0C1830BE",
+            "D": "1F3161C3870FE",
+            "E": "1FF060F98307F",
+            "F": "1FF060F183060",
+            "G": "FB1E1C19F13E",
+            "H": "1870E1FF870E1",
+            "I": "F84081021F3E",
+            "J": "FA284089121C",
+            "K": "18B268E1A3262",
+            "L": "1FF7EFDFBF1FF",
             "M": "11DD631",
             "N": "96AD29",
             "O": "64A526",
@@ -199,11 +199,12 @@ class Alphabet{
         }
 
         //var data =[Array.from(this.hex2bin(encodedLetter[r.random_choice(["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"])]))];
-        var data =[this.hex2bin(encodedLetter["A"]).split('')];
+        var data =[Array.from(this.hex2bin(encodedLetter["B"]))];
         var i = 0;
-        for (i = 1; i < this.NO_OF_NODE; i++){
+        for (i = 0; i < this.NO_OF_NODE; i++){
             data.push(data[0]);
         }
+
         return data;
     }
 
@@ -213,20 +214,18 @@ class Alphabet{
         brick = [ "MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"];
         brick = [ "GG", "FF", "CL", "BA", "PR", "AT", "TC", "DT", "PO"];
         brick = ["A0", "A1", "A2", "A3", "A4", "A5", "A6"]
-        
+
         this.dataSet =  this.getAlphabet();//new Array();
-        var brickColor = brick[Math.floor(r.random_dec() * brick.length)];
         var x = 0;
-        for (var j = 0; j < this.dataSet; j++)
+        for (var j = 0; j < this.dataSet.length; j++)
         {
             for (var i = 0; i < this.dataSet[j].length; i++){
-               
+
                 if (this.dataSet[j][i] != "0"){
-                    this.dataSet[j][i] = "MP";                   
+
+                    this.dataSet[j][i] = "MP";//brick[x.toString()];
                 }
 
-                
-                
                 if ((i+1) % 7 == 0)
                 {
                     x++;
@@ -234,7 +233,7 @@ class Alphabet{
                         x= 0;
                 }
             }
-            
+
         }
 
         return this.dataSet;
@@ -291,7 +290,7 @@ class Alphabet{
             var vx = Math.random() * 300 - 200;
             var vy = Math.random() * 300 - 200;
             var vz = Math.random() * 300 - 200;
-            
+
             new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Bounce.Out).start();
             new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
         }
@@ -305,11 +304,11 @@ class Alphabet{
                 var x = (i % this.NO_OF_NODE) * this.DOT_SIZE/2 + this.X_START_POS;
                 var y = (this.NO_OF_NODE - Math.floor(i / this.NO_OF_NODE)) * this.DOT_SIZE/2 + this.Y_START_POS;
                 var z = j * this.DOT_SIZE/2 + this.Z_START_POS;
-                
+
                 if (this.dataSet[j][i] != "0"){
                     var orgColor = new Color(this.getRgbColor(this.dataSet[j][i]));
-                    new TWEEN.Tween(list[k].material.color).to({r:orgColor.r, g:orgColor.g, b:orgColor.b}, 1000).easing(TWEEN.Easing.Cubic.InOut).start();    
-                    new TWEEN.Tween(list[k].position).to({ x: x, y: y, z: z }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
+                    new TWEEN.Tween(list[k].material.color).to({r:orgColor.r, g:orgColor.g, b:orgColor.b}, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
+                    new TWEEN.Tween(list[k].position).to({ x: x, y: y, z: 0 }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
                     new TWEEN.Tween(list[k].rotation).to({ x: 0, y: 0, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
                     k++;
                 }
@@ -360,8 +359,8 @@ class Alphabet{
             var vx = i * Math.sin(rot * Math.PI / 180) - 30;
             var vy = i - 90;
             var vz = i * Math.cos(rot * Math.PI / 180) - 20;
-            
-            new TWEEN.Tween(list[i].material.color).to({r:0, g:0, b:0}, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
+            var newColor = new Color(this.getRgbColor(r.random_choice(["A0", "A1", "A2", "A3", "A4","A5", "A6"])));
+            new TWEEN.Tween(list[i].material.color).to({r:newColor.r, g:newColor.g, b:newColor.b}, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
             new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
             new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
         }
@@ -378,7 +377,7 @@ class Alphabet{
             new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
         }
     }
-    
+
     changeFormation8() {
         for (var i = 0; i < list.length; i++) {
             var rot = 25 * i;
@@ -423,7 +422,7 @@ class Alphabet{
             default:
                 this.changeFormation2();
         }
-        
+
         this.ID++;
         if (this.ID > 2) {
             this.ID = 1;
@@ -436,56 +435,40 @@ class Alphabet{
     }
 }
 
+
+
 init();
 
 function init(){
     scene = new Scene();
-    scene.background = new Color( 0xf0f0f0  );
-
-    // const helper = new GridHelper( 2000, 100 );
-    // helper.position.y = - 199;
-    // scene.add( helper );
-
-     camera = new PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 1000 );
-     camera.position.set( -20, -10, 100 );
-     
-
-    
-    
-    
+    camera = new PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 1000 );
+    camera.position.set(-20, -10, 100);
     renderer = new WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(innerWidth, innerHeight);
-    
-    renderer.toneMapping = ReinhardToneMapping;
-       // renderer.setClearColor(0x000000);
-    // renderer.physicallyCorrectLights = true;
-    // renderer.shadowMap.enabled = true;
-    // renderer.shadowMap.type = PCFSoftShadowMap;
+    renderer.toneMapping = sRGBEncoding;
+    renderer.physicallyCorrectLights = true;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = PCFSoftShadowMap;
     document.body.appendChild(renderer.domElement);
-    
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.target.set(0,0,0);
-    controls.dampingFactor = 0.05;
-    controls.enableDamping = true;
 
-    const light = new DirectionalLight( 0xffffff, 20 );
+
+    const light = new DirectionalLight( 0xffffff, 9 );
     light.position.set( 120, 50, -100 );
     scene.add(light);
 
-    const light2 = new DirectionalLight( 0xffffff, 20 );
-    light.position.set( -120, 50, 120 );
+    const light2 = new DirectionalLight( 0xffffff, 9 );
+    light2.position.set( -120, 50, 120 );
     scene.add(light2);
 
-    scene.add(new AmbientLight(0xffffff, 1));
+    scene.add(new AmbientLight(0xffffff, 0.5));
 
     alphabet = new Alphabet();
-    // scene.background = new Color(alphabet.getRgbColor(r.random_choice([ "MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"])) );
-    scene.background = new Color("#ffffff");
-    scene.background = new Color("#000000");
+    scene.background = new Color("#000000");//alphabet.getRgbColor(r.random_choice([ "MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"])) );
+
     scene.add(alphabet.deploy());
     setInterval(changeID, 3000);
-    
+
     render();
 }
 
@@ -493,7 +476,7 @@ function changeID() {
     alphabet.update();
 }
 var theta = 0;
-var radius = 100;
+var radius = 200;
 
 function render() {
     renderer.setAnimationLoop(() => {
