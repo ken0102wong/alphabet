@@ -92,9 +92,9 @@ class Alphabet{
 
             for (var i = 0; i < this.dataSet[j].length; i++) {
 
-                var x = (i % this.NO_OF_NODE) * this.DOT_SIZE/2 + this.X_START_POS;
-                var y = (this.NO_OF_NODE - Math.floor(i / this.NO_OF_NODE)) * this.DOT_SIZE/2 + this.Y_START_POS;
-                var z = j * this.DOT_SIZE/2 + this.Z_START_POS;
+                var x = (i % this.NO_OF_NODE) * this.DOT_SIZE/1.5 + this.X_START_POS;
+                var y = (this.NO_OF_NODE - Math.floor(i / this.NO_OF_NODE)) * this.DOT_SIZE/1.5 + this.Y_START_POS;
+                var z = j * this.DOT_SIZE/1.5 + this.Z_START_POS;
 
                 if (this.dataSet[j][i] != "0"){
                     var material = new MeshPhongMaterial({
@@ -132,36 +132,7 @@ class Alphabet{
             return new SphereGeometry(random_size/2);
         else if (random_sharp == 1)
             return new BoxGeometry(random_size,random_size,random_size);
-        else if (random_sharp == 2)
-            return new CylinderGeometry(5,5,5,5,6, false);
-        else if (random_sharp == 3) {
-            var sharp = new SphereGeometry(random_size/2);
-            sharp.transal
-        }
-        else {
-            const extrudeSettings2 = {
-                steps: 200,
-                depth: 0.2,
-                bevelEnabled: true,
-                bevelThickness: 1,
-                bevelSize: 1,
-                bevelOffset: 0.2,
-                bevelSegments: 25
-            };
-
-            const pts2 = [], numPts = 5;
-
-            for ( let i = 0; i < numPts * 2; i ++ ) {
-                const l = i % 2 == 1 ? this.DOT_SIZE : this.DOT_SIZE/2;
-                const a = i / numPts * Math.PI;
-
-                pts2.push( new Vector2( Math.cos( a ) * l, Math.sin( a ) * l ) );
-            }
-
-            const shape2 = new Shape( pts2 );
-
-            return new ExtrudeGeometry( shape2, extrudeSettings2 );
-        }
+        
     }
 
     hex2bin(hex){
@@ -223,7 +194,7 @@ class Alphabet{
         for (var j = 0; j < this.dataSet.length; j++) {
             for (var i = 0; i < this.dataSet[j].length; i++){
                 if (this.dataSet[j][i] != "0"){
-                    this.dataSet[j][i] = "MP";         
+                    this.dataSet[j][i] = "WH";         
                 }
                 
                 if ((i+1) % 7 == 0)
@@ -298,18 +269,18 @@ class Alphabet{
 
     //Cube
     changeFormation2() {
-        isBeatting = false;
-        for ( let i = 0, l = list.length; i < l; i ++ ) {
-            const object = list[ i ];
-            object.scale.set( 1, 1, 1 );
-        }
+        // isBeatting = false;
+        // for ( let i = 0, l = list.length; i < l; i ++ ) {
+        //     const object = list[ i ];
+        //     object.scale.set( 1, 1, 1 );
+        // }
         
         var k = 0;
         for (var j = 0; j < this.dataSet.length; j++) {
             for (var i = 0; i < this.dataSet[j].length; i++) {
-                var x = (i % this.NO_OF_NODE) * this.DOT_SIZE/2 + this.X_START_POS;
-                var y = (this.NO_OF_NODE - Math.floor(i / this.NO_OF_NODE)) * this.DOT_SIZE/2 + this.Y_START_POS;
-                var z = j * this.DOT_SIZE/2 + this.Z_START_POS;
+                var x = (i % this.NO_OF_NODE) * this.DOT_SIZE/1.5 + this.X_START_POS;
+                var y = (this.NO_OF_NODE - Math.floor(i / this.NO_OF_NODE)) * this.DOT_SIZE/1.5 + this.Y_START_POS;
+                var z = j * this.DOT_SIZE/1.5 + this.Z_START_POS;
 
                 if (this.dataSet[j][i] != "0"){
                     var orgColor = new Color(this.getRgbColor(this.dataSet[j][i]));
@@ -454,8 +425,8 @@ function init(){
     // helper.position.y = - 199;
     // scene.add( helper );
 
-    camera = new PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
-    camera.position.set( -20, -10, 100 );
+    camera = new PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 10000 );
+    camera.position.set( -15, -10, 100 );
         
     renderer = new WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -467,18 +438,18 @@ function init(){
     document.body.appendChild(renderer.domElement);
 
 
-    const light = new DirectionalLight( 0xffffff, 9 );
+    const light = new DirectionalLight( 0xffffff, 5 );
     light.position.set( 120, 50, -100 );
     scene.add(light);
 
-    const light2 = new DirectionalLight( 0xffffff, 9 );
+    const light2 = new DirectionalLight( 0xffffff, 5 );
     light2.position.set( -120, 50, 120 );
     scene.add(light2);
 
     scene.add(new AmbientLight(0xffffff, 0.5));
 
     alphabet = new Alphabet();
-    scene.background = new Color("#000000");//alphabet.getRgbColor(r.random_choice([ "MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"])) );
+    scene.background = new Color("#0F0F0F");//alphabet.getRgbColor(r.random_choice([ "MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"])) );
 
     scene.add(alphabet.deploy());
     setInterval(changeID, 3000);
@@ -508,7 +479,7 @@ function render() {
 
         const time = performance.now();
         
-        if (isBeatting) {
+        if (true) {
             for ( let i = 0, l = list.length; i < l; i ++ ) {
                 const object = list[ i ];
                 const scale = Math.sin( ( Math.floor( object.position.x ) + time ) * 0.002 ) * 0.3 + 1;
