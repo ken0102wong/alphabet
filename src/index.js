@@ -143,9 +143,9 @@ class Alphabet{
 
         var encodedLetter = {
             "A": "FBFE3C7FF1E3",
-            "B": "51E227889E14",
+            "B": "1FB0E1FD870FE",
             "C": "FB0E0C1830BE",
-            "D": "1F3161C3870FE",
+            "D": "1F3161C38717C",
             "E": "1FF060F98307F",
             "F": "1FF060F183060",
             "G": "FB1E1C19F13E",
@@ -153,25 +153,55 @@ class Alphabet{
             "I": "F84081021F3E",
             "J": "FA284089121C",
             "K": "18B268E1A3262",
-            "L": "1FF7EFDFBF1FF",
-            "M": "11DD631",
-            "N": "96AD29",
-            "O": "64A526",
-            "P": "E4B908",
-            "Q": "64A567",
-            "R": "E4B929",
-            "S": "C8305C",
-            "T": "E21084",
-            "U": "94A526",
-            "V": "94A4C2",
-            "W": "118C6AA",
-            "X": "A5114A",
-            "Y": "A51084",
-            "Z": "F1110F",
+            "L": "183060C183F7E",
+            "M": "1870F3DB870E1",
+            "N": "1870F1D3971E1",
+            "O": "FB0E1C3870BE",
+            "P": "1FB0E1FD83060",
+            "Q": "FB0E1C39713D",
+            "R": "1FB0E1FDA3263",
+            "S": "FA1C07C070BE",
+            "T": "1FFFC9102041C",
+            "U": "1870E1C38709E",
+            "V": "18F1A24450A08",
+            "W": "18F5AA54A9514",
+            "X": "18D1141051163",
+            "Y": "10D1961861860",
+            "Z": "1FE18618618FF",
         }
 
-        //var data =[Array.from(this.hex2bin(encodedLetter[r.random_choice(["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"])]))];
-        var data =[Array.from(this.hex2bin(encodedLetter["G"]))];
+        var encodedLetter2 = {
+            "A": "1FFBEBBB06EFF",
+            "B": "1FE1DD87761FF",
+            "C": "1FF1DDBF771FF",
+            "D": "1FE1DDBB761FF",
+            "E": "1FE0DF877E0FF",
+            "F": "1FE0DF877EFFF",
+            "G": "1FF0DFB3770FF",
+            "H": "1FEEDD8376EFF",
+            "I": "1FE0F7EFDE0FF",
+            "J": "1FE0FBF76F1FF",
+            "K": "1FE6CB8F2E6FF",
+            "L": "1FF7EFDFBF1FF",
+            "M": "1FEEC9AB56EFF",
+            "N": "1FEECDAB66EFF",
+            "O": "1FF1DDBB771FF",
+            "P": "1FE1DD877EFFF",
+            "Q": "1FE0DDAB6E2FF",
+            "R": "1FE1DD876EEFF",
+            "S": "1FF0DFC7F61FF",
+            "T": "1FE0C1EFDFBFF",
+            "U": "1FEEDDBB771FF",
+            "V": "1FEEDDBBAFBFF",
+            "W": "1FEED5AB575FF",
+            "X": "1FEEEBEFAEEFF",
+            "Y": "1FEEEBEFDFBFF",
+            "Z": "1FE0DBEFB60FF",
+            
+        }
+
+        var data =[Array.from(this.hex2bin(encodedLetter2[r.random_choice(["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"])]))];
+        //var data =[Array.from(this.hex2bin(encodedLetter2["Z"]))];
         var i = 0;
         for (i = 0; i < this.NO_OF_NODE; i++){
             data.push(data[0]);
