@@ -1,5 +1,5 @@
 import { Color,Scene, GridHelper, HemisphereLight, DirectionalLight, Mesh, BoxGeometry, CylinderGeometry, Object3D, PerspectiveCamera, WebGLRenderer, Shape,
-    ReinhardToneMapping, PCFSoftShadowMap, MeshPhongMaterial, SphereGeometry,sRGBEncoding,CameraHelper,
+    ReinhardToneMapping, DodecahedronGeometry,OctahedronGeometry,PCFSoftShadowMap, MeshPhongMaterial, SphereGeometry,sRGBEncoding,CameraHelper,
     Vector2, MeshPhysicalMaterial, ExtrudeGeometry, MeshStandardMaterial,ACESFilmicToneMapping,
     DirectionalLightHelper, PointLight, MeshBasicMaterial, AmbientLight, OrthographicCamera, Math as threeMath,
  } from 'https://cdn.skypack.dev/three@0.137';
@@ -126,13 +126,16 @@ class Alphabet{
     genGeometry() {
         let random_sharp = Math.random() * 10 % 3 | 0;
         let random_size = Math.random() * 10 + 5 | 0;
-        random_sharp = 1;
+        random_sharp = 3;
         random_size = 5;
         if (random_sharp == 0)
             return new SphereGeometry(random_size/2);
         else if (random_sharp == 1)
             return new BoxGeometry(random_size,random_size,random_size);
-        
+        else if (random_sharp == 2)
+            return new OctahedronGeometry(3, 0);
+        else if (random_sharp == 3)
+            return new DodecahedronGeometry(3, 0);
     }
 
     hex2bin(hex){
@@ -200,7 +203,7 @@ class Alphabet{
             
         }
 
-        var data =[Array.from(this.hex2bin(encodedLetter2[r.random_choice(["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"])]))];
+        var data =[Array.from(this.hex2bin(encodedLetter[r.random_choice(["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"])]))];
         //var data =[Array.from(this.hex2bin(encodedLetter2["Z"]))];
         var i = 0;
         for (i = 0; i < this.NO_OF_NODE; i++){
