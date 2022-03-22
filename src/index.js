@@ -81,6 +81,8 @@ class Alphabet{
 
     group;
     dataSet;
+
+    count = 0;
     
     constructor(){
         this.group = new Object3D();
@@ -293,9 +295,9 @@ class Alphabet{
     changeFormation3() {
         for (var i = 0; i < list.length; i++) {
             var rot = 360 / list.length * i;
-            var vx = Math.random() * 800 - 300;
-            var vy = 0;
-            var vz = Math.random() * 600; //- 300;
+            var vx = Math.random() * 400 - list.length/2;
+            var vy = -10;
+            var vz = Math.random() * 400 - list.length/2;
 
             new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
             new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
@@ -373,30 +375,30 @@ class Alphabet{
             case 1:
                 this.changeFormation1();
                 break;
-            // case 2:
-            //     this.changeFormation2();
-            //     break;
-            // case 3:
-            //     this.changeFormation3();
-            //     break;
-            // case 4:
-            //     this.changeFormation4();
-            //     break;
-            // case 5:
-            //     this.changeFormation5();
-            //     break;
-            // case 6:
-            //     this.changeFormation6();
-            //     break;
-            // case 7:
-            //     this.changeFormation7();
-            //     break;
+            case 2:
+                this.changeFormation2();
+                break;
+            case 3:
+                this.changeFormation3();
+                break;
+            case 4:
+                this.changeFormation4();
+                break;
+            case 5:
+                this.changeFormation5();
+                break;
+            case 6:
+                this.changeFormation6();
+                break;
+            case 7:
+                this.changeFormation7();
+                break;
             default:
                 this.changeFormation8();
         }
         
         this.ID++;
-        if (this.ID > 2) {
+        if (this.ID > 8) {
             this.ID = 1;
         }
     }
@@ -427,7 +429,7 @@ function init(){
     // scene.add( helper );
 
     camera = new PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 10, 1000 );
-    camera.position.set( 60, -10, 120 );
+    camera.position.set( 60, 20, 200 );
     
     renderer = new WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -472,6 +474,16 @@ function render() {
     renderer.setAnimationLoop(() => {
         TWEEN.update();
         renderer.render(scene, camera);
+
+        // const time = performance.now();
+        
+        // for ( let i = 0, l = list.length; i < l; i ++ ) {
+
+        //     const object = list[ i ];
+        //     const scale = Math.sin( ( Math.floor( object.position.x ) + time ) * 0.002 ) * 0.3 + 1;
+        //     object.scale.set( scale, scale, scale );
+
+        // }
     });
 }
 
