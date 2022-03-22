@@ -406,11 +406,43 @@ class Alphabet{
         }
     }
 
+    changeFormation9() {
+        const radius = 30;
+
+        for (var i = 0; i < list.length; i++) {
+            const phi = Math.acos( - 1 + ( 2 * i ) / list.length );
+            const theta = Math.sqrt( list.length * Math.PI ) * phi;
+
+            var vx = radius * Math.cos( theta ) * Math.sin( phi ) - 15;
+            var vy = radius * Math.sin( theta ) * Math.sin( phi ) - 10;
+            var vz = radius * Math.cos( phi );
+
+            new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
+        }
+    }
+
+    changeFormation10() {
+        const amountX = 10;
+        const amountZ = 20;
+        const separationPlane = 25;
+        const offsetX = ( ( amountX - 1 ) * separationPlane ) / 2;
+        const offsetZ = ( ( amountZ - 1 ) * separationPlane ) / 4;
+
+        for ( let i = 0; i < list.length; i ++ ) {
+
+            const vx = Math.floor( i / amountX ) * separationPlane;
+            const vz = ( i % amountX ) * separationPlane;
+            const vy = ( Math.sin( vx * 0.5 ) + Math.sin( vz * 0.5 ) ) * 100;
+
+            new TWEEN.Tween(list[i].position).to({ x: vx - offsetX, y: vy + 20, z: vz - offsetZ }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
+        }
+    }
+
     update() {
         isBeatting = true;
         switch (this.ID) {
             case 1:
-                this.changeFormation1();
+                this.changeFormation10();
                 break;
             case 2:
                 this.changeFormation2();
@@ -512,13 +544,12 @@ function render() {
 
         const time = performance.now();
         
-        if (true) {
-            for ( let i = 0, l = list.length; i < l; i ++ ) {
-                const object = list[ i ];
-                const scale = Math.sin( ( Math.floor( object.position.x ) + time ) * 0.002 ) * 0.3 + 1;
-                object.scale.set( scale, scale, scale );
-            }
+        for ( let i = 0, l = list.length; i < l; i ++ ) {
+            const object = list[ i ];
+            const scale = Math.sin( ( Math.floor( object.position.x ) + time ) * 0.002 ) * 0.3 + 1;
+            object.scale.set( scale, scale, scale );
         }
+        
     });
 }
 
