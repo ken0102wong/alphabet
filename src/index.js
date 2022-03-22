@@ -1,5 +1,8 @@
 import { Color,Scene, GridHelper, HemisphereLight, DirectionalLight, Mesh, BoxGeometry, CylinderGeometry, Object3D, PerspectiveCamera, WebGLRenderer, Shape,
-    ReinhardToneMapping, PCFSoftShadowMap, MeshPhongMaterial, SphereGeometry } from 'https://cdn.skypack.dev/three@0.137';
+    ReinhardToneMapping, PCFSoftShadowMap, MeshPhongMaterial, SphereGeometry,
+    Vector2, MeshPhysicalMaterial, ExtrudeGeometry,
+    DirectionalLightHelper, PointLight, MeshBasicMaterial, AmbientLight
+ } from 'https://cdn.skypack.dev/three@0.137';
 import { OrbitControls } from 'https://cdn.skypack.dev/three-stdlib@2.8.5/controls/OrbitControls';
 import TWEEN from 'https://cdn.skypack.dev/@tweenjs/tween.js';
 
@@ -69,12 +72,12 @@ let r = new Random();
 
 class Alphabet{
     ID = 1;
-    DOT_SIZE = 12;
-    X_START_POS = -8 * this.DOT_SIZE;
-    Y_START_POS = -8 * this.DOT_SIZE;
-    Z_START_POS = -4.5 * this.DOT_SIZE;
+    DOT_SIZE = 10;
+    NO_OF_NODE = 7;
 
-    NO_OF_NODE = 5;
+    X_START_POS = -(this.NO_OF_NODE / 2) * this.DOT_SIZE;
+    Y_START_POS = -(this.NO_OF_NODE / 2) * this.DOT_SIZE;
+    Z_START_POS = -4.5 * this.DOT_SIZE;
 
     group;
     dataSet;
@@ -88,11 +91,14 @@ class Alphabet{
 
         for (var j = 0; j < this.dataSet.length; j++) {
             for (var i = 0; i < this.dataSet[j].length; i++) {
-                var x = (i % this.NO_OF_NODE) * this.DOT_SIZE + this.X_START_POS;
-                var y = (this.NO_OF_NODE - Math.floor(i / this.NO_OF_NODE)) * this.DOT_SIZE + this.Y_START_POS;
-                var z = j * this.DOT_SIZE + this.Z_START_POS;
+                var x = (i % this.NO_OF_NODE) * this.DOT_SIZE/2 + this.X_START_POS;
+                var y = (this.NO_OF_NODE - Math.floor(i / this.NO_OF_NODE)) * this.DOT_SIZE/2 + this.Y_START_POS;
+                var z = j * this.DOT_SIZE/2 + this.Z_START_POS;
                 if (this.dataSet[j][i] != "0"){               
                     var material = new MeshPhongMaterial({
+                        transparent: 1,
+                        opacity: 0.6,
+                        alphaTest: 0,
                         color: new Color(this.getRgbColor(this.dataSet[j][i])),
                         specular: new Color("#483c3c"),
                         shininess: 100
@@ -118,18 +124,22 @@ class Alphabet{
         random_sharp = 1;
         random_size = 10;
         if (random_sharp == 0)
-            return new SphereGeometry(random_size);
+            return new SphereGeometry(random_size/2);
         else if (random_sharp == 1) 
             return new BoxGeometry(random_size,random_size,random_size);
         else if (random_sharp == 2)
             return new CylinderGeometry(5,5,5,5,6, false);
+        else if (random_sharp == 3) {
+            var sharp = new SphereGeometry(random_size/2);
+            sharp.transal
+        }
         else {
             const extrudeSettings2 = {
                 steps: 200,
                 depth: 0.2,
                 bevelEnabled: true,
-                bevelThickness: 0.1,
-                bevelSize: 0.1,
+                bevelThickness: 1,
+                bevelSize: 1,
                 bevelOffset: 0.2,
                 bevelSegments: 25
             };
@@ -137,7 +147,7 @@ class Alphabet{
             const pts2 = [], numPts = 5;
 
             for ( let i = 0; i < numPts * 2; i ++ ) {
-                const l = i % 2 == 1 ? 0.5 : 0.25;
+                const l = i % 2 == 1 ? this.DOT_SIZE : this.DOT_SIZE/2;
                 const a = i / numPts * Math.PI;
 
                 pts2.push( new Vector2( Math.cos( a ) * l, Math.sin( a ) * l ) ); 
@@ -214,9 +224,6 @@ class Alphabet{
         return this.dataSet;
     }
 
-    
-
-
     getRgbColor(colorType) {
         var colorHash = {
             "WH":"#FFFFFF", // white
@@ -257,9 +264,9 @@ class Alphabet{
     changeFormation1() {
         for (var i = 0; i < list.length; i++) {
             var rot = 360 / list.length * i;
-            var vx = Math.random() * 600 - 300;
-            var vy = Math.random() * 600 - 300;
-            var vz = Math.random() * 600 - 300;
+            var vx = Math.random() * 300 - 200;
+            var vy = Math.random() * 300 - 200;
+            var vz = Math.random() * 300 - 200;
             
             new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
             new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
@@ -271,13 +278,13 @@ class Alphabet{
         var k = 0;
         for (var j = 0; j < this.dataSet.length; j++) {
             for (var i = 0; i < this.dataSet[j].length; i++) {
-                var x = (i % this.NO_OF_NODE) * this.DOT_SIZE + this.X_START_POS;
-                var y = (this.NO_OF_NODE - Math.floor(i / this.NO_OF_NODE)) * this.DOT_SIZE + this.Y_START_POS;
-                var z = j * this.DOT_SIZE + this.Z_START_POS;
+                var x = (i % this.NO_OF_NODE) * this.DOT_SIZE/2 + this.X_START_POS;
+                var y = (this.NO_OF_NODE - Math.floor(i / this.NO_OF_NODE)) * this.DOT_SIZE/2 + this.Y_START_POS;
+                var z = j * this.DOT_SIZE/2 + this.Z_START_POS;
                 if (this.dataSet[j][i] != "0"){
-                new TWEEN.Tween(list[k].position).to({ x: x, y: y, z: z }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
-                new TWEEN.Tween(list[k].rotation).to({ x: 0, y: 0, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
-                k++;
+                    new TWEEN.Tween(list[k].position).to({ x: x, y: y, z: z }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
+                    new TWEEN.Tween(list[k].rotation).to({ x: 0, y: 0, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
+                    k++;
                 }
             }
         }
@@ -347,16 +354,16 @@ class Alphabet{
         for (var i = 0; i < list.length; i++) {
             var rot = 25 * i;
             if (i < list.length / 2) {
-                var vx = 150 * Math.cos(rot * Math.PI / 360);
-                var vy = i * 10;
-                var vz = 150 * Math.sin(rot * Math.PI / 360);
+                var vx = 50 * Math.cos(rot * Math.PI / 360);
+                var vy = i * 5 - list.length;
+                var vz = 50 * Math.sin(rot * Math.PI / 360);
             } else {
-                var vx = 150 * Math.sin(rot * Math.PI / 180) - 10;
-                var vy = (i - list.length / 2) * 10;
-                var vz = 150 * Math.cos(rot * Math.PI / 180);
+                var vx = 50 * Math.sin(rot * Math.PI / 180);
+                var vy = (i - list.length / 2) * 5 - list.length;
+                var vz = 50 * Math.cos(rot * Math.PI / 180);
             }
 
-            new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
+            new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
             new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
         }
     }
@@ -366,30 +373,30 @@ class Alphabet{
             case 1:
                 this.changeFormation1();
                 break;
-            case 2:
-                this.changeFormation2();
-                break;
-            case 3:
-                this.changeFormation3();
-                break;
-            case 4:
-                this.changeFormation4();
-                break;
-            case 5:
-                this.changeFormation5();
-                break;
-            case 6:
-                this.changeFormation6();
-                break;
-            case 7:
-                this.changeFormation7();
-                break;
+            // case 2:
+            //     this.changeFormation2();
+            //     break;
+            // case 3:
+            //     this.changeFormation3();
+            //     break;
+            // case 4:
+            //     this.changeFormation4();
+            //     break;
+            // case 5:
+            //     this.changeFormation5();
+            //     break;
+            // case 6:
+            //     this.changeFormation6();
+            //     break;
+            // case 7:
+            //     this.changeFormation7();
+            //     break;
             default:
                 this.changeFormation8();
         }
         
         this.ID++;
-        if (this.ID > 8) {
+        if (this.ID > 2) {
             this.ID = 1;
         }
     }
@@ -413,13 +420,14 @@ init();
 
 function init(){
     scene = new Scene();
-    
+    scene.background = new Color( 0xf0f0f0  );
+
     // const helper = new GridHelper( 2000, 100 );
     // helper.position.y = - 199;
     // scene.add( helper );
 
-    camera = new PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
-    camera.position.set( 0, 250, 1000 );
+    camera = new PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 10, 1000 );
+    camera.position.set( 60, -10, 120 );
     
     renderer = new WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -436,37 +444,22 @@ function init(){
     controls.dampingFactor = 0.05;
     controls.enableDamping = true;
 
-    // const light = new HemisphereLight( 0xffffff, 0xffffff, 8 );
-    // light.color.setHSL( 0.6, 1, 0.6 );
-    // light.groundColor.setHSL( 0.095, 1, 0.75 );
-    // light.position.set( 40, 40, 40 );
-    // scene.add(light);
-
     const light = new DirectionalLight( 0xffffff, 20 );
-    light.color.setHSL( 0.1, 1, 0.95 );
-    light.position.set( - 1, 1.75, 1 );
-    light.position.multiplyScalar( 30 );
-
-    light.castShadow = true;
-    //light.receiveShadow = true;
-    light.shadow.mapSize.width = 2048;
-    light.shadow.mapSize.height = 2048;
-
-    const d = 50;
-
-    light.shadow.camera.left = - d;
-    light.shadow.camera.right = d;
-    light.shadow.camera.top = d;
-    light.shadow.camera.bottom = - d;
-
-    light.shadow.camera.far = 3500;
-    light.shadow.bias = - 0.0001;
+    light.position.set( 120, 50, -100 );
     scene.add(light);
 
+    const light2 = new DirectionalLight( 0xffffff, 20 );
+    light.position.set( -120, 50, 120 );
+    scene.add(light2);
+
+    scene.add(new AmbientLight(0xffffff, 1));
+
     alphabet = new Alphabet();
-    scene.background = new Color(alphabet.getRgbColor(r.random_choice([ "MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"])) );
+    // scene.background = new Color(alphabet.getRgbColor(r.random_choice([ "MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"])) );
+    scene.background = new Color("#ffffff");
+    scene.background = new Color("#222222");
     scene.add(alphabet.deploy());
-    setInterval(changeID, 2000);
+    setInterval(changeID, 3000);
     
     render();
 }
@@ -477,7 +470,7 @@ function changeID() {
 
 function render() {
     renderer.setAnimationLoop(() => {
-        //TWEEN.update();
+        TWEEN.update();
         renderer.render(scene, camera);
     });
 }
@@ -487,8 +480,6 @@ window.addEventListener('resize', function() {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 })
-
-
 
 function genTokenData(projectNum) {
     let data = {};
