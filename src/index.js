@@ -1,7 +1,7 @@
 import { Color,Scene, GridHelper, HemisphereLight, DirectionalLight, Mesh, BoxGeometry, CylinderGeometry, Object3D, PerspectiveCamera, WebGLRenderer, Shape,
-    ReinhardToneMapping, PCFSoftShadowMap, MeshPhongMaterial, SphereGeometry,
-    Vector2, MeshPhysicalMaterial, ExtrudeGeometry,
-    DirectionalLightHelper, PointLight, MeshBasicMaterial, AmbientLight
+    ReinhardToneMapping, PCFSoftShadowMap, MeshPhongMaterial, SphereGeometry,sRGBEncoding,
+    Vector2, MeshPhysicalMaterial, ExtrudeGeometry, MeshStandardMaterial,ACESFilmicToneMapping,
+    DirectionalLightHelper, PointLight, MeshBasicMaterial, AmbientLight, OrthographicCamera, Math as threeMath,
  } from 'https://cdn.skypack.dev/three@0.137';
 import { OrbitControls } from 'https://cdn.skypack.dev/three-stdlib@2.8.5/controls/OrbitControls';
 import TWEEN from 'https://cdn.skypack.dev/@tweenjs/tween.js';
@@ -88,12 +88,13 @@ class Alphabet{
 
         var geometry = this.genGeometry();
         this.genData();
-
+        console.log(this.dataSet);
         for (var j = 0; j < this.dataSet.length; j++) {
             for (var i = 0; i < this.dataSet[j].length; i++) {
                 var x = (i % this.NO_OF_NODE) * this.DOT_SIZE/2 + this.X_START_POS;
                 var y = (this.NO_OF_NODE - Math.floor(i / this.NO_OF_NODE)) * this.DOT_SIZE/2 + this.Y_START_POS;
                 var z = j * this.DOT_SIZE/2 + this.Z_START_POS;
+                
                 if (this.dataSet[j][i] != "0"){               
                     var material = new MeshPhongMaterial({
                         transparent: 1,
@@ -103,6 +104,7 @@ class Alphabet{
                         specular: new Color("#483c3c"),
                         shininess: 100
                     });
+                    
                     meshArray[i] = new Mesh(geometry, material);
                     meshArray[i].position.x = x;
                     meshArray[i].position.y = y;
@@ -112,7 +114,8 @@ class Alphabet{
                 }
             }
         }
-
+        
+        
         for (var i = 0; i < list.length; i++) {
             new TWEEN.Tween(list[i].scale).to({ x: 1, y: 1, z: 1 }, 1000).easing(TWEEN.Easing.Back.Out).start();
         }
@@ -160,14 +163,15 @@ class Alphabet{
     }
 
     hex2bin(hex){
-        return (parseInt(hex, 16).toString(2)).padStart(25, '0');
+        console.log(parseInt(hex, 16).toString(2));
+        return (parseInt(hex, 16).toString(2)).padStart(49, '0');
     }
 
     getAlphabet(){
 
         var encodedLetter = {
-            "A": "C97A52",
-            "B": "C5314C",
+            "A": "FBFE3C7FF1E3",
+            "B": "1FB1E3FD8F1FE",
             "C": "642106",
             "D": "C5294C",
             "E": "E4310E",
@@ -194,13 +198,12 @@ class Alphabet{
             "Z": "F1110F",
         }
 
-        var data =[Array.from(this.hex2bin(encodedLetter[r.random_choice(["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"])]))];
-
-        var i = 1;
+        //var data =[Array.from(this.hex2bin(encodedLetter[r.random_choice(["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"])]))];
+        var data =[this.hex2bin(encodedLetter["A"]).split('')];
+        var i = 0;
         for (i = 1; i < this.NO_OF_NODE; i++){
             data.push(data[0]);
         }
-
         return data;
     }
 
@@ -209,16 +212,29 @@ class Alphabet{
         brick = [ "WH", "BG", "BR", "RD", "YL", "GN", "WT", "BL", "PR"];
         brick = [ "MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"];
         brick = [ "GG", "FF", "CL", "BA", "PR", "AT", "TC", "DT", "PO"];
-
+        brick = ["A0", "A1", "A2", "A3", "A4", "A5", "A6"]
+        
         this.dataSet =  this.getAlphabet();//new Array();
         var brickColor = brick[Math.floor(r.random_dec() * brick.length)];
-        for (var j = 0; j < this.NO_OF_NODE; j++)
+        var x = 0;
+        for (var j = 0; j < this.dataSet; j++)
         {
-            for (var i = 0; i < this.NO_OF_NODE * this.NO_OF_NODE; i++){
+            for (var i = 0; i < this.dataSet[j].length; i++){
+               
                 if (this.dataSet[j][i] != "0"){
-                    this.dataSet[j][i] = brickColor ;
+                    this.dataSet[j][i] = "MP";                   
+                }
+
+                
+                
+                if ((i+1) % 7 == 0)
+                {
+                    x++;
+                    if (x>6)
+                        x= 0;
                 }
             }
+            
         }
 
         return this.dataSet;
@@ -256,7 +272,15 @@ class Alphabet{
             "AT":"#068960", // Absinthe Turquoise
             "TC":"#0f7c01", // Toy Camouflage
             "DT":"#025a5b", // Dark Turquoise
-            "PO":"#077c19", // Poblano
+            "PO":"#077c19", // Poblano,
+
+            "A0": "#005e28",
+            "A1": "#00565f",
+            "A2": "#00466a",
+            "A3": "#35477e",
+            "A4": "#4f4482",
+            "A5": "#b54788",
+            "A6": "#fb5f5f",
         };
         return colorHash[colorType];
     }
@@ -268,7 +292,7 @@ class Alphabet{
             var vy = Math.random() * 300 - 200;
             var vz = Math.random() * 300 - 200;
             
-            new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
+            new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Bounce.Out).start();
             new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
         }
     }
@@ -281,7 +305,10 @@ class Alphabet{
                 var x = (i % this.NO_OF_NODE) * this.DOT_SIZE/2 + this.X_START_POS;
                 var y = (this.NO_OF_NODE - Math.floor(i / this.NO_OF_NODE)) * this.DOT_SIZE/2 + this.Y_START_POS;
                 var z = j * this.DOT_SIZE/2 + this.Z_START_POS;
+                
                 if (this.dataSet[j][i] != "0"){
+                    var orgColor = new Color(this.getRgbColor(this.dataSet[j][i]));
+                    new TWEEN.Tween(list[k].material.color).to({r:orgColor.r, g:orgColor.g, b:orgColor.b}, 1000).easing(TWEEN.Easing.Cubic.InOut).start();    
                     new TWEEN.Tween(list[k].position).to({ x: x, y: y, z: z }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
                     new TWEEN.Tween(list[k].rotation).to({ x: 0, y: 0, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
                     k++;
@@ -327,12 +354,14 @@ class Alphabet{
     }
 
     changeFormation6() {
+        let random_size = Math.random() * 10 + 5 | 0;
         for (var i = 0; i < list.length; i++) {
             var rot = 25 * i;
-            var vx = i * Math.sin(rot * Math.PI / 180);
-            var vy = i;
-            var vz = i * Math.cos(rot * Math.PI / 180);
-
+            var vx = i * Math.sin(rot * Math.PI / 180) - 30;
+            var vy = i - 90;
+            var vz = i * Math.cos(rot * Math.PI / 180) - 20;
+            
+            new TWEEN.Tween(list[i].material.color).to({r:0, g:0, b:0}, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
             new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
             new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
         }
@@ -371,7 +400,7 @@ class Alphabet{
     update() {
         switch (this.ID) {
             case 1:
-                this.changeFormation1();
+                this.changeFormation6();
                 break;
             // case 2:
             //     this.changeFormation2();
@@ -392,7 +421,7 @@ class Alphabet{
             //     this.changeFormation7();
             //     break;
             default:
-                this.changeFormation8();
+                this.changeFormation2();
         }
         
         this.ID++;
@@ -407,15 +436,6 @@ class Alphabet{
     }
 }
 
-
-console.log(tokenData.hash);
-console.log(r.random_choice(['cube','sphere','star','hex']));
-console.log(r.random_choice(['metal', 'normal']));
-console.log(r.random_choice(['Pattern1', 'Pattern2', 'Gold', 'Silver']));
-console.log(r.random_choice(['Transformation1', 'Transformation2', 'Transformation3', 'Tranformation4', 'Tranformation5']));
-console.log(r.random_choice(['Cube', 'Diamond', 'Shpere']));
-console.log(r.random_choice(['Tiny','Normal','Extra']));
-
 init();
 
 function init(){
@@ -426,17 +446,22 @@ function init(){
     // helper.position.y = - 199;
     // scene.add( helper );
 
-    camera = new PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 10, 1000 );
-    camera.position.set( 60, -10, 120 );
+     camera = new PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 1000 );
+     camera.position.set( -20, -10, 100 );
+     
+
+    
+    
     
     renderer = new WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(innerWidth, innerHeight);
+    
     renderer.toneMapping = ReinhardToneMapping;
-    renderer.setClearColor(0x000000);
-    renderer.physicallyCorrectLights = true;
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = PCFSoftShadowMap;
+       // renderer.setClearColor(0x000000);
+    // renderer.physicallyCorrectLights = true;
+    // renderer.shadowMap.enabled = true;
+    // renderer.shadowMap.type = PCFSoftShadowMap;
     document.body.appendChild(renderer.domElement);
     
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -457,7 +482,7 @@ function init(){
     alphabet = new Alphabet();
     // scene.background = new Color(alphabet.getRgbColor(r.random_choice([ "MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"])) );
     scene.background = new Color("#ffffff");
-    scene.background = new Color("#222222");
+    scene.background = new Color("#000000");
     scene.add(alphabet.deploy());
     setInterval(changeID, 3000);
     
@@ -467,10 +492,21 @@ function init(){
 function changeID() {
     alphabet.update();
 }
+var theta = 0;
+var radius = 100;
 
 function render() {
     renderer.setAnimationLoop(() => {
-        TWEEN.update();
+        // theta += 0.1;
+
+        // camera.position.x = radius * Math.sin(threeMath.degToRad(theta));
+        // camera.position.y = radius * Math.sin(threeMath.degToRad(theta));
+        // camera.position.z = radius * Math.cos(threeMath.degToRad(theta));
+        // camera.lookAt(scene.position);
+
+        // camera.updateMatrixWorld();
+
+        //TWEEN.update();
         renderer.render(scene, camera);
     });
 }
