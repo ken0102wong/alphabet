@@ -9,7 +9,6 @@ import TWEEN from 'https://cdn.skypack.dev/@tweenjs/tween.js';
 let scene;
 let camera;
 let alphabet;
-let isBeatting;
 
 class Random {
     constructor() {
@@ -81,6 +80,8 @@ class Alphabet{
 
     group;
     dataSet;
+    positions = [];
+    current = 0;
 
     constructor(){
         this.group = new Object3D();
@@ -121,12 +122,17 @@ class Alphabet{
         for (var i = 0; i < list.length; i++) {
             new TWEEN.Tween(list[i].scale).to({ x: 1, y: 1, z: 1 }, 1000).easing(TWEEN.Easing.Back.Out).start();
         }
+
+        this.changeFormation1();
+        this.changeFormation2();
+        this.changeFormation9();
+        this.changeFormation10();
     }
 
     genGeometry() {
         let random_sharp = Math.random() * 10 % 3 | 0;
         let random_size = Math.random() * 10 + 5 | 0;
-        random_sharp = 3;
+        random_sharp = 0;
         random_size = 5;
         if (random_sharp == 0)
             return new SphereGeometry(random_size/2);
@@ -295,31 +301,25 @@ class Alphabet{
             var vy = Math.random() * 100 - 50;
             var vz = Math.random() * 100 - 20;
             
-            new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.Out).start();
-            new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
+            // new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.Out).start();
+            this.positions.push( vx, vy, vz );
+            // new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
         }
     }
 
     //Cube
     changeFormation2() {
-        // isBeatting = false;
-        // for ( let i = 0, l = list.length; i < l; i ++ ) {
-        //     const object = list[ i ];
-        //     object.scale.set( 1, 1, 1 );
-        // }
-        
         var k = 0;
         for (var j = 0; j < this.dataSet.length; j++) {
             for (var i = 0; i < this.dataSet[j].length; i++) {
                 var x = (i % this.NO_OF_NODE) * this.DOT_SIZE/1.5 + this.X_START_POS;
                 var y = (this.NO_OF_NODE - Math.floor(i / this.NO_OF_NODE)) * this.DOT_SIZE/1.5 + this.Y_START_POS;
-                var z = j * this.DOT_SIZE/1.5 + this.Z_START_POS;
 
                 if (this.dataSet[j][i] != "0"){
                     var orgColor = new Color(this.getRgbColor(this.dataSet[j][i]));
                     new TWEEN.Tween(list[k].material.color).to({r:orgColor.r, g:orgColor.g, b:orgColor.b}, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
-                    new TWEEN.Tween(list[k].position).to({ x: x, y: y, z: 0 }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
-                    new TWEEN.Tween(list[k].rotation).to({ x: 0, y: 0, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
+                    
+                    this.positions.push( x, y, 0 );
                     k++;
                 }
             }
@@ -328,24 +328,24 @@ class Alphabet{
 
     changeFormation3() {
         for (var i = 0; i < list.length; i++) {
-            var rot = 360 / list.length * i;
-            var vx = Math.random() * 400 - list.length/2;
-            var vy = -10;
-            var vz = Math.random() * 400 - list.length/2;
-
-            new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
-            new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
+            this.positions.push( 
+                Math.random() * 400 - list.length/2, 
+                -10, 
+                Math.random() * 400 - list.length/2
+            );
         }
     }
 
     changeFormation4() {
         for (var i = 0; i < list.length; i++) {
             var rot = 25 * i;
-            var vx = 150 * Math.sin(rot * Math.PI / 180);
-            var vy = 1 * i - 10;
-            var vz = 150 * Math.cos(rot * Math.PI / 180);
 
-            new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
+            // new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
+            this.positions.push( 
+                150 * Math.sin(rot * Math.PI / 180), 
+                1 * i - 10, 
+                150 * Math.cos(rot * Math.PI / 180)
+            );
             new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
         }
     }
@@ -353,11 +353,13 @@ class Alphabet{
     changeFormation5() {
         for (var i = 0; i < list.length; i++) {
             var rot = 25 * i;
-            var vx = i * Math.sin(rot * Math.PI / 180) / 5;
-            var vy = i;
-            var vz = i * Math.cos(rot * Math.PI / 180) / 5;
-
-            new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
+            
+            // new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
+            this.positions.push( 
+                i * Math.sin(rot * Math.PI / 180) / 5, 
+                i, 
+                i * Math.cos(rot * Math.PI / 180) / 5
+            );
             new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
         }
     }
@@ -366,24 +368,25 @@ class Alphabet{
         let random_size = Math.random() * 10 + 5 | 0;
         for (var i = 0; i < list.length; i++) {
             var rot = 25 * i;
-            var vx = i * Math.sin(rot * Math.PI / 180) - 30;
-            var vy = i - 90;
-            var vz = i * Math.cos(rot * Math.PI / 180) - 20;
             var newColor = new Color(this.getRgbColor(r.random_choice(["A0", "A1", "A2", "A3", "A4","A5", "A6"])));
             new TWEEN.Tween(list[i].material.color).to({r:newColor.r, g:newColor.g, b:newColor.b}, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
-            new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
-            new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
+            this.positions.push( 
+                i * Math.sin(rot * Math.PI / 180) - 30, 
+                i - 90, 
+                i * Math.cos(rot * Math.PI / 180) - 20
+            );
         }
     }
 
     changeFormation7() {
         for (var i = 0; i < list.length; i++) {
             var rot = 25 * i;
-            var vx = 150 * Math.sin(rot * Math.PI / 180);
-            var vy = (i - 1) * 10;
-            var vz = 150 * Math.cos(rot * Math.PI / 180);
 
-            new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
+            this.positions.push( 
+                150 * Math.sin(rot * Math.PI / 180), 
+                (i - 1) * 10, 
+                150 * Math.cos(rot * Math.PI / 180)
+            );
             new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
         }
     }
@@ -401,7 +404,7 @@ class Alphabet{
                 var vz = 50 * Math.cos(rot * Math.PI / 180);
             }
 
-            new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
+            this.positions.push( vx, vy, vz );
             new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: rot }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
         }
     }
@@ -413,72 +416,57 @@ class Alphabet{
             const phi = Math.acos( - 1 + ( 2 * i ) / list.length );
             const theta = Math.sqrt( list.length * Math.PI ) * phi;
 
-            var vx = radius * Math.cos( theta ) * Math.sin( phi ) - 15;
-            var vy = radius * Math.sin( theta ) * Math.sin( phi ) - 10;
-            var vz = radius * Math.cos( phi );
-
-            new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
+            this.positions.push(
+                radius * Math.cos( theta ) * Math.sin( phi ),
+                radius * Math.sin( theta ) * Math.sin( phi ),
+                radius * Math.cos( phi )
+            );
         }
     }
 
     changeFormation10() {
-        const amountX = 10;
-        const amountZ = 20;
-        const separationPlane = 25;
+        const amountX = 16;
+        const amountZ = 32;
+        const separationPlane = 100;
         const offsetX = ( ( amountX - 1 ) * separationPlane ) / 2;
-        const offsetZ = ( ( amountZ - 1 ) * separationPlane ) / 4;
+        const offsetZ = ( ( amountZ - 1 ) * separationPlane ) / 2;
 
         for ( let i = 0; i < list.length; i ++ ) {
 
-            const vx = Math.floor( i / amountX ) * separationPlane;
-            const vz = ( i % amountX ) * separationPlane;
-            const vy = ( Math.sin( vx * 0.5 ) + Math.sin( vz * 0.5 ) ) * 100;
+            const x = ( i % amountX ) * separationPlane;
+            const z = Math.floor( i / amountX ) * separationPlane + 20;
+            const y = ( Math.sin( z * 0.5 ) + Math.sin( x * 0.5 ) ) * 200 + 100;
 
-            new TWEEN.Tween(list[i].position).to({ x: vx - offsetX, y: vy + 20, z: vz - offsetZ }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
+            this.positions.push( x - offsetX, y, z - offsetZ );
         }
     }
 
-    update() {
-        isBeatting = true;
-        switch (this.ID) {
-            case 1:
-                this.changeFormation10();
-                break;
-            case 2:
-                this.changeFormation2();
-                break;
-            // case 3:
-            //     this.changeFormation3();
-            //     break;
-            // case 4:
-            //     this.changeFormation4();
-            //     break;
-            // case 5:
-            //     this.changeFormation5();
-            //     break;
-            // case 6:
-            //     this.changeFormation6();
-            //     break;
-            // case 7:
-            //     this.changeFormation7();
-            //     break;
-            // default:
-            //     this.changeFormation7();
+    transition() {
+        const offset = this.current * list.length * 3;
+        const duration = 2000;
+
+        for ( let i = 0, j = offset; i < list.length; i ++, j += 3 ) {
+            const object = list[ i ];
+
+            new TWEEN.Tween( object.position )
+                .to( {
+                    x: this.positions[ j ],
+                    y: this.positions[ j + 1 ],
+                    z: this.positions[ j + 2 ]
+                }, Math.random() * duration + duration )
+                .easing( TWEEN.Easing.Exponential.InOut )
+                .start();
         }
 
-        this.ID++;
-        if (this.ID > 3) {
-            this.ID = 1;
-        }
+        // new TWEEN.Tween( this ).to( {}, duration * 3 ).start();
+        this.current = ( this.current + 1 ) % 4;
+
     }
 
-    deploy()
-    {
+    deploy() {
         return this.group;
     }
 }
-
-
 
 init();
 
@@ -502,7 +490,6 @@ function init(){
     renderer.shadowMap.type = PCFSoftShadowMap;
     document.body.appendChild(renderer.domElement);
 
-
     const light = new DirectionalLight( 0xffffff, 5 );
     light.position.set( 120, 50, -100 );
     scene.add(light);
@@ -517,13 +504,13 @@ function init(){
     scene.background = new Color("#0F0F0F");//alphabet.getRgbColor(r.random_choice([ "MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"])) );
 
     scene.add(alphabet.deploy());
-    setInterval(changeID, 3000);
+    setInterval(changeID, 3500);
 
     render();
 }
 
 function changeID() {
-    alphabet.update();
+    alphabet.transition();
 }
 var theta = 0;
 var radius = 200;
@@ -549,7 +536,6 @@ function render() {
             const scale = Math.sin( ( Math.floor( object.position.x ) + time ) * 0.002 ) * 0.3 + 1;
             object.scale.set( scale, scale, scale );
         }
-        
     });
 }
 
@@ -569,6 +555,3 @@ function genTokenData(projectNum) {
     data.tokenId = (projectNum * 1000000 + Math.floor(Math.random() * 1000)).toString();
     return data;
 }
-
-
-
