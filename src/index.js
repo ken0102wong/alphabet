@@ -123,10 +123,7 @@ class Alphabet{
             new TWEEN.Tween(list[i].scale).to({ x: 1, y: 1, z: 1 }, 1000).easing(TWEEN.Easing.Back.Out).start();
         }
 
-        this.changeFormation1();
-        this.changeFormation2();
-        this.changeFormation9();
-        this.changeFormation10();
+        this.addTransition();
     }
 
     genGeometry() {
@@ -439,6 +436,19 @@ class Alphabet{
 
             this.positions.push( x - offsetX, y, z - offsetZ );
         }
+    }
+
+    addTransition() {
+        this.changeFormation1();
+        this.changeFormation2();
+        // this.changeFormation3();
+        // this.changeFormation4();
+        // this.changeFormation5();
+        // this.changeFormation6();
+        // this.changeFormation7();
+        // this.changeFormation8();
+        // this.changeFormation9();
+        this.changeFormation10();
     }
 
     transition() {
