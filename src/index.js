@@ -1,7 +1,7 @@
 import { Color,Scene, GridHelper, HemisphereLight, DirectionalLight, Mesh, BoxGeometry, CylinderGeometry, Object3D, PerspectiveCamera, WebGLRenderer, Shape,
-    ReinhardToneMapping, DodecahedronGeometry,OctahedronGeometry,PCFSoftShadowMap, MeshPhongMaterial, SphereGeometry,sRGBEncoding,CameraHelper,
-    Vector2, MeshPhysicalMaterial, ExtrudeGeometry, MeshStandardMaterial,ACESFilmicToneMapping,
-    DirectionalLightHelper, PointLight, MeshBasicMaterial, AmbientLight, OrthographicCamera, Math as threeMath,
+    ReinhardToneMapping, CineonToneMapping, DodecahedronGeometry,OctahedronGeometry,PCFSoftShadowMap, MeshPhongMaterial, SphereGeometry,sRGBEncoding,CameraHelper,
+    Vector2, MeshPhysicalMaterial, ExtrudeGeometry, MeshStandardMaterial,ACESFilmicToneMapping,MeshToonMaterial, LinearToneMapping, SpotLight, AxesHelper,
+    DirectionalLightHelper, PointLight, MeshBasicMaterial, SpotLightHelper, AmbientLight, OrthographicCamera, Math as threeMath, HemisphereLightHelper, ExtrudeBufferGeometry
  } from 'https://cdn.skypack.dev/three@0.137';
 import TWEEN from 'https://cdn.skypack.dev/@tweenjs/tween.js';
 
@@ -98,16 +98,34 @@ class Alphabet{
                 var z = j * this.DOT_SIZE/1.5 + this.Z_START_POS;
 
                 if (this.dataSet[j][i] != "0"){
-                    var material = new MeshPhongMaterial({
-                        transparent: 1,
-                        opacity: 0.6,
-                        alphaTest: 0,
+
+                    var material3 = new MeshPhysicalMaterial({
+                        
                         color: new Color(this.getRgbColor(this.dataSet[j][i])),
-                        specular: new Color("#483c3c"),
-                        shininess: 100,
+                        emissive: new Color("#000000"),
+                        metalness: 0.9,
+                        roughness: 0,
+                        reflectivity: 1,
+                        clearcoat: 1,
+                        clearcoatRoughness: 0,
+                        
                     });
 
-                    meshArray[i] = new Mesh(geometry, material);
+                    var material2 = new MeshToonMaterial({
+                        color: new Color(this.getRgbColor(this.dataSet[j][i])),
+                    });
+
+                    var material = new MeshPhongMaterial({
+                        transparent: 1,
+                        opacity: 0.4,
+                        alphaTest: 0,
+                        color: new Color(this.getRgbColor(this.dataSet[j][i])),
+                        specular: new Color("#111111"),
+                        emissive: new Color("#000000"),
+                        shininess: 100,
+                    });
+                    
+                    meshArray[i] = new Mesh(geometry, material3);
                     meshArray[i].position.x = x;
                     meshArray[i].position.y = y;
                     meshArray[i].position.z = 0;
@@ -120,14 +138,15 @@ class Alphabet{
 
         // laydown setting
         this.group.rotateX(5.4);
-        this.group.rotateZ(-0.6);
-        this.group.position.y -= 5;
+         this.group.rotateZ(-0.6);
+         this.group.position.y -= 5;
+         
 
         // front standing setting do nothing
 
         // standing with angle
         // this.group.rotateY(5.5);
-        // this.group.position.x -= 5;
+         //this.group.position.x -= 5;
 
         for (var i = 0; i < list.length; i++) {
             new TWEEN.Tween(list[i].scale).to({ x: 1, y: 1, z: 1 }, 1000).easing(TWEEN.Easing.Back.Out).start();
@@ -135,6 +154,29 @@ class Alphabet{
 
         this.addTransition();
     }
+
+    createBoxWithRoundedEdges( width, height, depth, radius0, smoothness ) {
+        let shape = new Shape();
+        let eps = 0.00001;
+        let radius = radius0 - eps;
+        shape.absarc( eps, eps, eps, -Math.PI / 2, -Math.PI, true );
+        shape.absarc( eps, height -  radius * 2, eps, Math.PI, Math.PI / 2, true );
+        shape.absarc( width - radius * 2, height -  radius * 2, eps, Math.PI / 2, 0, true );
+        shape.absarc( width - radius * 2, eps, eps, 0, -Math.PI / 2, true );
+        let geometry = new ExtrudeBufferGeometry( shape, {
+          amount: depth - radius0 * 2,
+          bevelEnabled: true,
+          bevelSegments: smoothness * 2,
+          steps: 1,
+          bevelSize: radius,
+          bevelThickness: radius0,
+          curveSegments: smoothness
+        });
+        
+        geometry.center();
+        
+        return geometry;
+      }
 
     genGeometry() {
         let random_sharp = Math.random() * 10 % 3 | 0;
@@ -149,6 +191,8 @@ class Alphabet{
             return new OctahedronGeometry(3, 0);
         else if (random_sharp == 3)
             return new DodecahedronGeometry(3, 0);
+        else if (random_sharp == 4)
+            return this.createBoxWithRoundedEdges(random_size, random_size, random_size, .95, 20);
     }
 
     hex2bin(hex){
@@ -240,7 +284,7 @@ class Alphabet{
         for (var j = 0; j < this.dataSet.length; j++) {
             for (var i = 0; i < this.dataSet[j].length; i++){
                 if (this.dataSet[j][i] != "0"){
-                    this.dataSet[j][i] = "DM";         
+                    this.dataSet[j][i] = "WH";         
                 }
                 
                 if ((i+1) % 7 == 0)
@@ -459,8 +503,8 @@ class Alphabet{
             
             this.positions.push( vx, vy, vz );
 
-            var newColor = new Color(this.getRgbColor(r.random_choice(["MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"])));
-            new TWEEN.Tween(list[i].material.color).to({r:newColor.r, g:newColor.g, b:newColor.b}, 3000).easing(TWEEN.Easing.Cubic.InOut).start();
+            // var newColor = new Color(this.getRgbColor(r.random_choice(["MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"])));
+            // new TWEEN.Tween(list[i].material.color).to({r:newColor.r, g:newColor.g, b:newColor.b}, 3000).easing(TWEEN.Easing.Cubic.InOut).start();
             
         }
     }
@@ -508,33 +552,49 @@ init();
 
 function init(){
     scene = new Scene();
-    scene.background = new Color( 0xf0f0f0  );
+    //scene.background = new Color( 0xf0f0f0  );
 
     // const helper = new GridHelper( 2000, 100 );
     // helper.position.y = - 199;
     // scene.add( helper );
 
-    camera = new PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 10000 );
+    camera = new PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
     camera.position.set( -15, -10, 100 );
-        
+    //camera.position.set( 0,0, 100 );        
+    //camera.lookAt(0,0,0);
+    
+
     renderer = new WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(innerWidth, innerHeight);
-    renderer.toneMapping = sRGBEncoding;
-    renderer.physicallyCorrectLights = true;
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = PCFSoftShadowMap;
+    //renderer.outputEncoding = sRGBEncoding;
+    renderer.toneMapping = CineonToneMapping;
+    
+    // renderer.physicallyCorrectLights = true;
+    // renderer.shadowMap.enabled = true;
+    //  renderer.shadowMap.type = PCFSoftShadowMap;
     document.body.appendChild(renderer.domElement);
 
-    const light = new DirectionalLight( 0xffffff, 5 );
-    light.position.set( 120, 50, -100 );
+    const light = new DirectionalLight( 0x8a9c01, 1 );
+    light.position.set(-30, 10, 10 );
+    light.target.position.set(10,0,0);
+    light.target.updateMatrixWorld();
+    const helper = new DirectionalLightHelper(light, 5 );
+    
     scene.add(light);
+    scene.add(light.target);
+    scene.add( helper );
 
-    const light2 = new DirectionalLight( 0xffffff, 5 );
-    light2.position.set( -120, 50, 120 );
+    scene.add(new AxesHelper(500));
+    const light2 = new DirectionalLight( 0xffffff,2 );
+    light2.position.set( -50, 3, 15 );
     scene.add(light2);
+    const helper2 = new DirectionalLightHelper( light2, 5 );
+    scene.add( helper2 );
 
-    scene.add(new AmbientLight(0xffffff, 0.5));
+    
+
+    //scene.add(new AmbientLight(0xffffff));
 
     alphabet = new Alphabet();
     scene.background = new Color("#0f0f0f");//alphabet.getRgbColor(r.random_choice([ "MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"])) );
@@ -553,15 +613,6 @@ var radius = 200;
 
 function render() {
     renderer.setAnimationLoop(() => {
-        // theta += 0.1;
-
-        // camera.position.x = radius * Math.sin(threeMath.degToRad(theta));
-        // camera.position.y = radius * Math.sin(threeMath.degToRad(theta));
-        // camera.position.z = radius * Math.cos(threeMath.degToRad(theta));
-        // camera.lookAt(scene.position);
-
-        // camera.updateMatrixWorld();
-
         TWEEN.update();
         renderer.render(scene, camera);
 
