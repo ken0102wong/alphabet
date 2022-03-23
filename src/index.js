@@ -104,7 +104,7 @@ class Alphabet{
                         alphaTest: 0,
                         color: new Color(this.getRgbColor(this.dataSet[j][i])),
                         specular: new Color("#483c3c"),
-                        shininess: 100
+                        shininess: 100,
                     });
 
                     meshArray[i] = new Mesh(geometry, material);
@@ -118,6 +118,16 @@ class Alphabet{
             }
         }
 
+        // laydown setting
+        this.group.rotateX(5.4);
+        this.group.rotateZ(-0.6);
+        this.group.position.y -= 5;
+
+        // front standing setting do nothing
+
+        // standing with angle
+        // this.group.rotateY(5.5);
+        // this.group.position.x -= 5;
 
         for (var i = 0; i < list.length; i++) {
             new TWEEN.Tween(list[i].scale).to({ x: 1, y: 1, z: 1 }, 1000).easing(TWEEN.Easing.Back.Out).start();
@@ -129,7 +139,7 @@ class Alphabet{
     genGeometry() {
         let random_sharp = Math.random() * 10 % 3 | 0;
         let random_size = Math.random() * 10 + 5 | 0;
-        random_sharp = 0;
+        random_sharp = 1;
         random_size = 5;
         if (random_sharp == 0)
             return new SphereGeometry(random_size/2);
@@ -206,8 +216,8 @@ class Alphabet{
             
         }
 
-        var data =[Array.from(this.hex2bin(encodedLetter[r.random_choice(["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"])]))];
-        //var data =[Array.from(this.hex2bin(encodedLetter2["Z"]))];
+        //var data =[Array.from(this.hex2bin(encodedLetter[r.random_choice(["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"])]))];
+        var data =[Array.from(this.hex2bin(encodedLetter["Q"]))];
         var i = 0;
         for (i = 0; i < this.NO_OF_NODE; i++){
             data.push(data[0]);
@@ -230,7 +240,7 @@ class Alphabet{
         for (var j = 0; j < this.dataSet.length; j++) {
             for (var i = 0; i < this.dataSet[j].length; i++){
                 if (this.dataSet[j][i] != "0"){
-                    this.dataSet[j][i] = "WH";         
+                    this.dataSet[j][i] = "DM";         
                 }
                 
                 if ((i+1) % 7 == 0)
@@ -314,13 +324,15 @@ class Alphabet{
 
                 if (this.dataSet[j][i] != "0"){
                     var orgColor = new Color(this.getRgbColor(this.dataSet[j][i]));
-                    new TWEEN.Tween(list[k].material.color).to({r:orgColor.r, g:orgColor.g, b:orgColor.b}, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
+                    new TWEEN.Tween(list[k].material.color).to({r:orgColor.r, g:orgColor.g, b:orgColor.b}, 2000).easing(TWEEN.Easing.Cubic.InOut).start();
                     
                     this.positions.push( x, y, 0 );
                     k++;
                 }
             }
         }
+
+        
     }
 
     changeFormation3() {
@@ -438,17 +450,31 @@ class Alphabet{
         }
     }
 
+    changeFormation11(){
+        for (var i = 0; i < list.length; i++) {
+            var vx = Math.random() * 100 - 70;
+            var vy = Math.random() * 100 - 50;//this.positions.y; 
+            var vz = this.positions.z; //Math.random() * 100 - 20;
+
+            
+            this.positions.push( vx, vy, vz );
+
+            var newColor = new Color(this.getRgbColor(r.random_choice(["MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"])));
+            new TWEEN.Tween(list[i].material.color).to({r:newColor.r, g:newColor.g, b:newColor.b}, 3000).easing(TWEEN.Easing.Cubic.InOut).start();
+            
+        }
+    }
+
     addTransition() {
-        this.changeFormation1();
+        //this.changeFormation1();
         this.changeFormation2();
-        // this.changeFormation3();
-        // this.changeFormation4();
-        // this.changeFormation5();
-        // this.changeFormation6();
-        // this.changeFormation7();
+        //this.changeFormation4();
+        //this.changeFormation6();
+        //this.changeFormation7();
         // this.changeFormation8();
         // this.changeFormation9();
-        this.changeFormation10();
+        // this.changeFormation10();
+         this.changeFormation11();
     }
 
     transition() {
@@ -511,7 +537,7 @@ function init(){
     scene.add(new AmbientLight(0xffffff, 0.5));
 
     alphabet = new Alphabet();
-    scene.background = new Color("#0F0F0F");//alphabet.getRgbColor(r.random_choice([ "MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"])) );
+    scene.background = new Color("#0f0f0f");//alphabet.getRgbColor(r.random_choice([ "MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"])) );
 
     scene.add(alphabet.deploy());
     setInterval(changeID, 3500);
