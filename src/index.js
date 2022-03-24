@@ -1,7 +1,6 @@
-import { Color,Scene, GridHelper, HemisphereLight, DirectionalLight, Mesh, BoxGeometry, CylinderGeometry, Object3D, PerspectiveCamera, WebGLRenderer, Shape,
-    ReinhardToneMapping, CineonToneMapping, DodecahedronGeometry,OctahedronGeometry,PCFSoftShadowMap, MeshPhongMaterial, SphereGeometry,sRGBEncoding,CameraHelper,
-    Vector2, MeshPhysicalMaterial, ExtrudeGeometry, MeshStandardMaterial,ACESFilmicToneMapping,MeshToonMaterial, LinearToneMapping, SpotLight, AxesHelper,
-    DirectionalLightHelper, PointLight, MeshBasicMaterial, SpotLightHelper, AmbientLight, OrthographicCamera, Math as threeMath, HemisphereLightHelper, ExtrudeBufferGeometry
+import { Color,Scene, DirectionalLight, Mesh, BoxGeometry, Object3D, PerspectiveCamera, WebGLRenderer,
+    DodecahedronGeometry,OctahedronGeometry,PCFSoftShadowMap, MeshPhongMaterial, SphereGeometry,sRGBEncoding,
+    Vector3,AmbientLight, Math as threeMath, GridHelper,
  } from 'https://cdn.skypack.dev/three@0.137';
 import TWEEN from 'https://cdn.skypack.dev/@tweenjs/tween.js';
 
@@ -80,6 +79,9 @@ class Alphabet{
     dataSet;
     positions = [];
     current = 0;
+
+    colorSet = [];
+    cameraSet = [];
 
     constructor(){
         this.group = new Object3D();
@@ -306,25 +308,8 @@ class Alphabet{
         return colorHash[colorType];
     }
 
-    changeFormation1() {
-        for (var i = 0; i < list.length; i++) {
-            var rot = 360 / list.length * i;
-            var vx = Math.random() * 100 -70;
-            var vy = Math.random() * 100 - 50;
-            var vz = Math.random() * 100 - 20;
-            
-            // new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.Out).start();
-            this.positions.push( vx, vy, vz );
-            //new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
-
-            var newColor = new Color(this.getRgbColor(r.random_choice(["A0", "A1", "A2", "A3", "A4", "A5", "A6"])));
-            new TWEEN.Tween(list[i].material.color).to({r:newColor.r, g:newColor.g, b:newColor.b}, 2000).easing(TWEEN.Easing.Cubic.InOut).start();
-            
-        }
-    }
-
-    //Cube
-    changeFormation2() {
+    // core
+    transit_core() {
         var k = 0;
         for (var j = 0; j < this.dataSet.length; j++) {
             for (var i = 0; i < this.dataSet[j].length; i++) {
@@ -340,94 +325,77 @@ class Alphabet{
             }
         }
 
-        
-        
+        this.cameraSet.push({ 
+            rotation: new Vector3( 0, 0, 0 ),
+            position: new Vector3( -15, -10, 100)
+        });
     }
 
-    changeFormation3() {
-        for (var i = 0; i < list.length; i++) {
-            this.positions.push( 
-                Math.random() * 400 - list.length/2, 
-                -10, 
-                Math.random() * 400 - list.length/2
-            );
-        }
-    }
-
-    changeFormation4() {
+    // ring
+    transit_ring() {
         for (var i = 0; i < list.length; i++) {
             var rot = 25 * i;
 
-            // new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
             this.positions.push( 
-                150 * Math.sin(rot * Math.PI / 180), 
+                100 * Math.sin(rot * Math.PI / 180), 
                 1 * i - 10, 
-                150 * Math.cos(rot * Math.PI / 180)
+                100 * Math.cos(rot * Math.PI / 180)
             );
-            new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
         }
+
+        this.cameraSet.push({ 
+            rotation: new Vector3( 0, threeMath.degToRad(-30), threeMath.degToRad(-30) ),
+            // position: new Vector3( 0, 0, 100)
+            position: new Vector3( -305, 0, 600)
+        });
     }
 
-    changeFormation5() {
+    // twister
+    transit_twister() {
         for (var i = 0; i < list.length; i++) {
             var rot = 25 * i;
             
-            // new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.InOut).start();
-            this.positions.push( 
-                i * Math.sin(rot * Math.PI / 180) / 5, 
-                i, 
-                i * Math.cos(rot * Math.PI / 180) / 5
-            );
-            new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
-        }
-    }
-
-    changeFormation6() {
-        let random_size = Math.random() * 10 + 5 | 0;
-        for (var i = 0; i < list.length; i++) {
-            var rot = 25 * i;
             var newColor = new Color(this.getRgbColor(r.random_choice(["A0", "A1", "A2", "A3", "A4","A5", "A6"])));
             new TWEEN.Tween(list[i].material.color).to({r:newColor.r, g:newColor.g, b:newColor.b}, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
             this.positions.push( 
                 i * Math.sin(rot * Math.PI / 180) - 30, 
-                i - 90, 
-                i * Math.cos(rot * Math.PI / 180) - 20
+                i * Math.cos(rot * Math.PI / 180), 
+                i - 90
             );
         }
+
+        this.cameraSet.push({ 
+            rotation: new Vector3( threeMath.degToRad(-30), 0, threeMath.degToRad(0) ),
+            position: new Vector3( -15, 50, 100)
+        });
     }
 
-    changeFormation7() {
+    // twin snake
+    transit_snake() {
         for (var i = 0; i < list.length; i++) {
-            var rot = 25 * i;
-
-            this.positions.push( 
-                150 * Math.sin(rot * Math.PI / 180), 
-                (i - 1) * 10, 
-                150 * Math.cos(rot * Math.PI / 180)
-            );
-            new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
-        }
-    }
-
-    changeFormation8() {
-        for (var i = 0; i < list.length; i++) {
-            var rot = 25 * i;
+            var rot = 15 * i;
             if (i < list.length / 2) {
-                var vx = 50 * Math.cos(rot * Math.PI / 360);
-                var vy = i * 5 - list.length;
-                var vz = 50 * Math.sin(rot * Math.PI / 360);
+                var vx = 25 * Math.cos(rot * Math.PI / 360);
+                var vy = 25 * Math.sin(rot * Math.PI / 360);
+                var vz = i * 2 - list.length/2;
             } else {
-                var vx = 50 * Math.sin(rot * Math.PI / 180);
-                var vy = (i - list.length / 2) * 5 - list.length;
-                var vz = 50 * Math.cos(rot * Math.PI / 180);
+                var vx = 25 * Math.sin(rot * Math.PI / 180);
+                var vy = 25 * Math.cos(rot * Math.PI / 180);
+                var vz = (i - list.length / 2) * 2 - list.length/2;
             }
 
+            var newColor = new Color(this.getRgbColor(r.random_choice(["MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"])));
+            new TWEEN.Tween(list[i].material.color).to({r:newColor.r, g:newColor.g, b:newColor.b}, 3000).easing(TWEEN.Easing.Cubic.InOut).start();
             this.positions.push( vx, vy, vz );
-            new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: rot }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
         }
+        this.cameraSet.push({ 
+            rotation: new Vector3( threeMath.degToRad(-40), 0, threeMath.degToRad(0) ),
+            position: new Vector3( -5, 120, 120)
+        });
     }
 
-    changeFormation9() {
+    // sphere
+    transit_sphere() {
         const radius = 30;
 
         for (var i = 0; i < list.length; i++) {
@@ -435,14 +403,20 @@ class Alphabet{
             const theta = Math.sqrt( list.length * Math.PI ) * phi;
 
             this.positions.push(
-                radius * Math.cos( theta ) * Math.sin( phi ),
-                radius * Math.sin( theta ) * Math.sin( phi ),
+                radius * Math.cos( theta ) * Math.sin( phi ) - 10,
+                radius * Math.sin( theta ) * Math.sin( phi ) - 15,
                 radius * Math.cos( phi )
             );
         }
+
+        this.cameraSet.push({ 
+            rotation: new Vector3( 0, 0, 0 ),
+            position: new Vector3( -15, -10, 100)
+        });
     }
 
-    changeFormation10() {
+    // wave
+    transit_wave() {
         const amountX = 16;
         const amountZ = 32;
         const separationPlane = 100;
@@ -457,33 +431,39 @@ class Alphabet{
 
             this.positions.push( x - offsetX, y, z - offsetZ );
         }
+
+        this.cameraSet.push({ 
+            rotation: new Vector3( threeMath.degToRad(-30), 0, threeMath.degToRad(0) ),
+            position: new Vector3( -15, -10, 100)
+        });
     }
 
-    changeFormation11(){
+    transit_fragille(){
         for (var i = 0; i < list.length; i++) {
-            var vx = Math.random() * 100 - 70;
-            var vy = Math.random() * 100 - 50;//this.positions.y; 
-            var vz = this.positions.z; //Math.random() * 100 - 20;
+            this.positions.push( 
+                Math.random() * 100 - 70, 
+                Math.random() * 100 - 50, 
+                Math.random() * 100 - 20
+            );
 
-            
-            this.positions.push( vx, vy, vz );
-
-            // var newColor = new Color(this.getRgbColor(r.random_choice(["MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"])));
-            // new TWEEN.Tween(list[i].material.color).to({r:newColor.r, g:newColor.g, b:newColor.b}, 3000).easing(TWEEN.Easing.Cubic.InOut).start();
-            
+            var newColor = new Color(this.getRgbColor(r.random_choice(["MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"])));
+            new TWEEN.Tween(list[i].material.color).to({r:newColor.r, g:newColor.g, b:newColor.b}, 3000).easing(TWEEN.Easing.Cubic.InOut).start();
         }
+
+        this.cameraSet.push({ 
+            rotation: new Vector3( 0, 0, 0 ),
+            position: new Vector3( -15, -10, 100)
+        });
     }
 
     addTransition() {
-        this.changeFormation1();
-        this.changeFormation2();
-        //this.changeFormation4();
-        //this.changeFormation6();
-        //this.changeFormation7();
-        // this.changeFormation8();
-        // this.changeFormation9();
-        // this.changeFormation10();
-        //this.changeFormation11();
+        // this.transit_core();
+        this.transit_ring();
+        // this.transit_twister();
+        // this.transit_snake();
+        // this.transit_sphere();
+        // this.transit_wave();
+        // this.transit_fragille();
     }
 
     transition() {
@@ -503,9 +483,11 @@ class Alphabet{
                 .start();
         }
 
-        // new TWEEN.Tween( this ).to( {}, duration * 3 ).start();
-        this.current = ( this.current + 1 ) % 4;
-
+        new TWEEN.Tween(camera).to(this.cameraSet[this.current], duration)
+        .easing(TWEEN.Easing.Quadratic.InOut)
+        .start();
+        
+        this.current = ( this.current + 1 ) % 2;
     }
 
     deploy() {
@@ -578,7 +560,7 @@ function init(){
     scene.background = new Color("#dbdbdb");//alphabet.getRgbColor(r.random_choice([ "MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"])) );
 
     scene.add(alphabet.deploy());
-    setInterval(changeID, 3500);
+    setInterval(changeID, 3000);
 
     render();
 }
@@ -586,8 +568,6 @@ function init(){
 function changeID() {
     alphabet.transition();
 }
-var theta = 0;
-var radius = 200;
 
 function render() {
     renderer.setAnimationLoop(() => {
