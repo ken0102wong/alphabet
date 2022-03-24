@@ -1,6 +1,6 @@
 import { Color,Scene, DirectionalLight, Mesh, BoxGeometry, Object3D, PerspectiveCamera, WebGLRenderer,
-    DodecahedronGeometry,OctahedronGeometry,PCFSoftShadowMap, MeshPhongMaterial, SphereGeometry,sRGBEncoding,
-    Vector3,AmbientLight, Math as threeMath, GridHelper,
+    Shape,ExtrudeBufferGeometry,MeshPhysicalMaterial, MeshPhongMaterial, SphereGeometry,sRGBEncoding,
+    Vector3,DirectionalLightHelper, Math as threeMath, GridHelper, ReinhardToneMapping,
  } from 'https://cdn.skypack.dev/three@0.137';
 import TWEEN from 'https://cdn.skypack.dev/@tweenjs/tween.js';
 
@@ -457,9 +457,9 @@ class Alphabet{
     }
 
     addTransition() {
-        // this.transit_core();
-        this.transit_ring();
-        // this.transit_twister();
+        this.transit_core();
+        // this.transit_ring();
+        this.transit_twister();
         // this.transit_snake();
         // this.transit_sphere();
         // this.transit_wave();
@@ -468,7 +468,7 @@ class Alphabet{
 
     transition() {
         const offset = this.current * list.length * 3;
-        const duration = 4000;
+        const duration = 1500;
 
         for ( let i = 0, j = offset; i < list.length; i ++, j += 3 ) {
             const object = list[ i ];
