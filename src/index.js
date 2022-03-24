@@ -29,9 +29,10 @@ class Random {
             };
         };
         // seed prngA with first half of tokenData.hash
-        this.prngA = new sfc32(tokenData.hash.substr(2, 32));
+        var hash = "0x80a6db47547e29cf8456f0f3b24c9efc8cda0fa3629b0192c67f5131b9e03698"; // tokenData.hash
+        this.prngA = new sfc32(hash.substr(2, 32));
         // seed prngB with second half of tokenData.hash
-        this.prngB = new sfc32(tokenData.hash.substr(34, 32));
+        this.prngB = new sfc32(hash.substr(34, 32));
         for (let i = 0; i < 1e6; i += 2) {
             this.prngA();
             this.prngB();
@@ -82,6 +83,7 @@ class Alphabet{
 
     colorSet = [];
     cameraSet = [];
+    orgColor = "";
 
     constructor(){
         this.group = new Object3D();
@@ -89,6 +91,7 @@ class Alphabet{
         this.dataSet = [];
         var geometry = this.genGeometry();
         this.genData();
+
         for (var j = 0; j < this.dataSet.length; j++) {
 
             for (var i = 0; i < this.dataSet[j].length; i++) {
@@ -186,7 +189,7 @@ class Alphabet{
         else if (random_sharp == 1)
             return new BoxGeometry(random_size,random_size,random_size);
         else if (random_sharp == 2)
-            return this.createBoxWithRoundedEdges(random_size, random_size, random_size, .95, 20);
+            return this.createBoxWithRoundedEdges(random_size, random_size, random_size, .85, 10);
     }
 
     hex2bin(hex){
@@ -241,7 +244,7 @@ class Alphabet{
         brick = ["A0", "A1", "A2", "A3", "A4", "A5", "A6"]
 
         this.dataSet =  this.getAlphabet();//new Array();
-
+        this.orgColor = "WT";
         var brickColor = brick[Math.floor(r.random_dec() * brick.length)];
         var x = 0;
         for (var j = 0; j < this.dataSet.length; j++) {
@@ -354,9 +357,7 @@ class Alphabet{
     transit_twister() {
         for (var i = 0; i < list.length; i++) {
             var rot = 25 * i;
-            
-            var newColor = new Color(this.getRgbColor(r.random_choice(["A0", "A1", "A2", "A3", "A4","A5", "A6"])));
-            new TWEEN.Tween(list[i].material.color).to({r:newColor.r, g:newColor.g, b:newColor.b}, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
+           
             this.positions.push( 
                 i * Math.sin(rot * Math.PI / 180) - 30, 
                 i * Math.cos(rot * Math.PI / 180), 
@@ -383,9 +384,6 @@ class Alphabet{
                 var vy = 25 * Math.cos(rot * Math.PI / 180);
                 var vz = (i - list.length / 2) * 2 - list.length/2;
             }
-
-            var newColor = new Color(this.getRgbColor(r.random_choice(["MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"])));
-            new TWEEN.Tween(list[i].material.color).to({r:newColor.r, g:newColor.g, b:newColor.b}, 3000).easing(TWEEN.Easing.Cubic.InOut).start();
             this.positions.push( vx, vy, vz );
         }
         this.cameraSet.push({ 
@@ -445,9 +443,6 @@ class Alphabet{
                 Math.random() * 100 - 50, 
                 Math.random() * 100 - 20
             );
-
-            var newColor = new Color(this.getRgbColor(r.random_choice(["MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"])));
-            new TWEEN.Tween(list[i].material.color).to({r:newColor.r, g:newColor.g, b:newColor.b}, 3000).easing(TWEEN.Easing.Cubic.InOut).start();
         }
 
         this.cameraSet.push({ 
@@ -481,8 +476,12 @@ class Alphabet{
                 }, Math.random() * duration + duration )
                 .easing( TWEEN.Easing.Exponential.InOut )
                 .start();
+            
+            var newColor = (this.current == 1 ? new Color(this.getRgbColor(r.random_choice(["MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"]))) : new Color(this.getRgbColor(this.orgColor)));
+            new TWEEN.Tween(object.material.color).to({r:newColor.r, g:newColor.g, b:newColor.b}, 3000).easing(TWEEN.Easing.Cubic.InOut).start();
+       
         }
-
+        
         new TWEEN.Tween(camera).to(this.cameraSet[this.current], duration)
         .easing(TWEEN.Easing.Quadratic.InOut)
         .start();
@@ -599,6 +598,7 @@ function genTokenData(projectNum) {
       hash += Math.floor(Math.random() * 16).toString(16);
     }
     data.hash = hash;
+    console.log(hash);
     data.tokenId = (projectNum * 1000000 + Math.floor(Math.random() * 1000)).toString();
     return data;
 }
