@@ -67,8 +67,6 @@ let list = [];
 let tokenData = genTokenData(123);
 let r = new Random();
 
-
-
 class Alphabet{
     ID = 1;
     DOT_SIZE = 10;
@@ -104,25 +102,23 @@ class Alphabet{
                         color: new Color(this.getRgbColor(this.dataSet[j][i])),
                         emissive: new Color("#000000"),
                         metalness: 0.9,
-                        roughness: 0,
+                        roughness: 0.4,
                         reflectivity: 1,
-                        clearcoat: 1,
-                        clearcoatRoughness: 0,
+                        clearcoat: 1.5,
+                        clearcoatRoughness: 0.5,
                         
-                    });
-
-                    var material2 = new MeshToonMaterial({
-                        color: new Color(this.getRgbColor(this.dataSet[j][i])),
                     });
 
                     var material = new MeshPhongMaterial({
                         transparent: 1,
-                        opacity: 0.4,
+                        opacity: 0.7,
                         alphaTest: 0,
                         color: new Color(this.getRgbColor(this.dataSet[j][i])),
-                        specular: new Color("#111111"),
+                        specular: new Color("#ffffff"),
                         emissive: new Color("#000000"),
-                        shininess: 100,
+                        shininess: 90,
+                        reflectivity: 0.5,
+                        refractionRatio: 0.5,
                     });
                     
                     meshArray[i] = new Mesh(geometry, material3);
@@ -164,7 +160,7 @@ class Alphabet{
         shape.absarc( width - radius * 2, height -  radius * 2, eps, Math.PI / 2, 0, true );
         shape.absarc( width - radius * 2, eps, eps, 0, -Math.PI / 2, true );
         let geometry = new ExtrudeBufferGeometry( shape, {
-          amount: depth - radius0 * 2,
+          depth: depth - radius0 * 2,
           bevelEnabled: true,
           bevelSegments: smoothness * 2,
           steps: 1,
@@ -181,17 +177,13 @@ class Alphabet{
     genGeometry() {
         let random_sharp = Math.random() * 10 % 3 | 0;
         let random_size = Math.random() * 10 + 5 | 0;
-        random_sharp = 1;
+        random_sharp = 2;
         random_size = 5;
         if (random_sharp == 0)
             return new SphereGeometry(random_size/2);
         else if (random_sharp == 1)
             return new BoxGeometry(random_size,random_size,random_size);
         else if (random_sharp == 2)
-            return new OctahedronGeometry(3, 0);
-        else if (random_sharp == 3)
-            return new DodecahedronGeometry(3, 0);
-        else if (random_sharp == 4)
             return this.createBoxWithRoundedEdges(random_size, random_size, random_size, .95, 20);
     }
 
@@ -229,37 +221,6 @@ class Alphabet{
             "Y": "10D1961861860",
             "Z": "1FE18618618FF",
         }
-
-        var encodedLetter2 = {
-            "A": "1FFBEBBB06EFF",
-            "B": "1FE1DD87761FF",
-            "C": "1FF1DDBF771FF",
-            "D": "1FE1DDBB761FF",
-            "E": "1FE0DF877E0FF",
-            "F": "1FE0DF877EFFF",
-            "G": "1FF0DFB3770FF",
-            "H": "1FEEDD8376EFF",
-            "I": "1FE0F7EFDE0FF",
-            "J": "1FE0FBF76F1FF",
-            "K": "1FE6CB8F2E6FF",
-            "L": "1FF7EFDFBF1FF",
-            "M": "1FEEC9AB56EFF",
-            "N": "1FEECDAB66EFF",
-            "O": "1FF1DDBB771FF",
-            "P": "1FE1DD877EFFF",
-            "Q": "1FE0DDAB6E2FF",
-            "R": "1FE1DD876EEFF",
-            "S": "1FF0DFC7F61FF",
-            "T": "1FE0C1EFDFBFF",
-            "U": "1FEEDDBB771FF",
-            "V": "1FEEDDBBAFBFF",
-            "W": "1FEED5AB575FF",
-            "X": "1FEEEBEFAEEFF",
-            "Y": "1FEEEBEFDFBFF",
-            "Z": "1FE0DBEFB60FF",
-            
-        }
-
         //var data =[Array.from(this.hex2bin(encodedLetter[r.random_choice(["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"])]))];
         var data =[Array.from(this.hex2bin(encodedLetter["Q"]))];
         var i = 0;
@@ -284,7 +245,7 @@ class Alphabet{
         for (var j = 0; j < this.dataSet.length; j++) {
             for (var i = 0; i < this.dataSet[j].length; i++){
                 if (this.dataSet[j][i] != "0"){
-                    this.dataSet[j][i] = "WH";         
+                    this.dataSet[j][i] = "WT";         
                 }
                 
                 if ((i+1) % 7 == 0)
@@ -334,11 +295,11 @@ class Alphabet{
             "DT":"#025a5b", // Dark Turquoise
             "PO":"#077c19", // Poblano,
 
-            "A0": "#005e28",
-            "A1": "#00565f",
-            "A2": "#00466a",
-            "A3": "#35477e",
-            "A4": "#4f4482",
+            "A0": "#0004ff",
+            "A1": "#00ffcc",
+            "A2": "#ff8800",
+            "A3": "#ff0000",
+            "A4": "#ff0084",
             "A5": "#b54788",
             "A6": "#fb5f5f",
         };
@@ -354,7 +315,11 @@ class Alphabet{
             
             // new TWEEN.Tween(list[i].position).to({ x: vx, y: vy, z: vz }, 1000).easing(TWEEN.Easing.Exponential.Out).start();
             this.positions.push( vx, vy, vz );
-            // new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
+            //new TWEEN.Tween(list[i].rotation).to({ x: 0, y: rot, z: 0 }, 1000).easing(TWEEN.Easing.Cubic.InOut).start();
+
+            var newColor = new Color(this.getRgbColor(r.random_choice(["A0", "A1", "A2", "A3", "A4", "A5", "A6"])));
+            new TWEEN.Tween(list[i].material.color).to({r:newColor.r, g:newColor.g, b:newColor.b}, 2000).easing(TWEEN.Easing.Cubic.InOut).start();
+            
         }
     }
 
@@ -367,15 +332,15 @@ class Alphabet{
                 var y = (this.NO_OF_NODE - Math.floor(i / this.NO_OF_NODE)) * this.DOT_SIZE/1.5 + this.Y_START_POS;
 
                 if (this.dataSet[j][i] != "0"){
-                    var orgColor = new Color(this.getRgbColor(this.dataSet[j][i]));
-                    new TWEEN.Tween(list[k].material.color).to({r:orgColor.r, g:orgColor.g, b:orgColor.b}, 2000).easing(TWEEN.Easing.Cubic.InOut).start();
-                    
                     this.positions.push( x, y, 0 );
                     k++;
                 }
+                   
+                  
             }
         }
 
+        
         
     }
 
@@ -510,7 +475,7 @@ class Alphabet{
     }
 
     addTransition() {
-        //this.changeFormation1();
+        this.changeFormation1();
         this.changeFormation2();
         //this.changeFormation4();
         //this.changeFormation6();
@@ -518,12 +483,12 @@ class Alphabet{
         // this.changeFormation8();
         // this.changeFormation9();
         // this.changeFormation10();
-         this.changeFormation11();
+        //this.changeFormation11();
     }
 
     transition() {
         const offset = this.current * list.length * 3;
-        const duration = 2000;
+        const duration = 4000;
 
         for ( let i = 0, j = offset; i < list.length; i ++, j += 3 ) {
             const object = list[ i ];
@@ -551,53 +516,66 @@ class Alphabet{
 init();
 
 function init(){
+
+    var enableHelper = false;
+
     scene = new Scene();
-    //scene.background = new Color( 0xf0f0f0  );
 
-    // const helper = new GridHelper( 2000, 100 );
-    // helper.position.y = - 199;
-    // scene.add( helper );
-
+    if (enableHelper){
+        const ghelper = new GridHelper( 500, 50 );
+        scene.add( ghelper );
+        scene.add(new AxesHelper(50));    
+    }
+    
     camera = new PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
     camera.position.set( -15, -10, 100 );
-    //camera.position.set( 0,0, 100 );        
-    //camera.lookAt(0,0,0);
-    
 
     renderer = new WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(innerWidth, innerHeight);
-    //renderer.outputEncoding = sRGBEncoding;
-    renderer.toneMapping = CineonToneMapping;
     
-    // renderer.physicallyCorrectLights = true;
-    // renderer.shadowMap.enabled = true;
-    //  renderer.shadowMap.type = PCFSoftShadowMap;
+    renderer.outputEncoding = sRGBEncoding;
+    renderer.toneMapping = ReinhardToneMapping;
+    renderer.toneMappingExposure = 1;
+    //renderer.physicallyCorrectLights = true;
     document.body.appendChild(renderer.domElement);
 
-    const light = new DirectionalLight( 0x8a9c01, 1 );
-    light.position.set(-30, 10, 10 );
-    light.target.position.set(10,0,0);
+
+    // light 1
+    const light = new DirectionalLight( 0xfcfbf5, 1 );
+    light.position.set(-20, 20, 90 );
+    light.target.position.set(-17,-2,-15);
     light.target.updateMatrixWorld();
     const helper = new DirectionalLightHelper(light, 5 );
-    
     scene.add(light);
     scene.add(light.target);
-    scene.add( helper );
+    if (enableHelper) scene.add( helper );
 
-    scene.add(new AxesHelper(500));
-    const light2 = new DirectionalLight( 0xffffff,2 );
-    light2.position.set( -50, 3, 15 );
-    scene.add(light2);
-    const helper2 = new DirectionalLightHelper( light2, 5 );
-    scene.add( helper2 );
+     // light 2
+     const light2 = new DirectionalLight( 0xfcfbf5, 1 );
+     light2.position.set(-45, -15, 90 );
+     light2.target.position.set(-22,-12,-10);
+     light2.target.updateMatrixWorld();
+     const helper2 = new DirectionalLightHelper(light2, 5 );
+     scene.add(light2);
+     scene.add(light2.target);
+     if (enableHelper) scene.add( helper2 );
 
+     // light 3
+     const light3 = new DirectionalLight( 0xfcfbf5, 1 );
+     light3.position.set(35, -15, 90 );
+     light3.target.position.set(-4,-13,-55);
+     light3.target.updateMatrixWorld();
+     const helper3 = new DirectionalLightHelper(light3, 5 );
+     scene.add(light3);
+     scene.add(light3.target);
+     if (enableHelper) scene.add( helper3 );
+    
     
 
-    //scene.add(new AmbientLight(0xffffff));
-
     alphabet = new Alphabet();
-    scene.background = new Color("#0f0f0f");//alphabet.getRgbColor(r.random_choice([ "MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"])) );
+    //dbdbdb, 34373b
+    scene.background = new Color("#dbdbdb");//alphabet.getRgbColor(r.random_choice([ "MP", "LI", "PPB", "PA", "PS", "PP", "BT", "DM","CO"])) );
 
     scene.add(alphabet.deploy());
     setInterval(changeID, 3500);
@@ -613,7 +591,7 @@ var radius = 200;
 
 function render() {
     renderer.setAnimationLoop(() => {
-        TWEEN.update();
+        
         renderer.render(scene, camera);
 
         const time = performance.now();
@@ -623,6 +601,8 @@ function render() {
             const scale = Math.sin( ( Math.floor( object.position.x ) + time ) * 0.002 ) * 0.3 + 1;
             object.scale.set( scale, scale, scale );
         }
+
+        TWEEN.update();
     });
 }
 
